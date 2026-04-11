@@ -232,6 +232,7 @@ export const getAppointmentDetail = async (appointmentId: string) => {
       start_time,
       status,
       reason,
+      service_id,
       patients!inner (*),
       doctor:profiles!doctor_id (*),
       employee:profiles!employee_id (fullname),

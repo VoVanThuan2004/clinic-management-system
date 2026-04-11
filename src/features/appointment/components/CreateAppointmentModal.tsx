@@ -156,7 +156,7 @@ export const CreateAppointmentModal = (props: Props) => {
                 filterOption={false}
                 onSearch={(value) => setSearchPatient(value)}
                 options={options}
-                onSelect={(value, option) => {
+                onSelect={(option) => {
                   setSelectedPatient(option.patient);
                 }}
                 notFoundContent={
@@ -224,7 +224,7 @@ export const CreateAppointmentModal = (props: Props) => {
                 filterOption={false}
                 onSearch={(value) => setSearchDoctor(value)}
                 options={optionDoctors}
-                onSelect={(value, option) => {
+                onSelect={(option) => {
                   setSelectedDoctor(option.doctor);
                 }}
                 notFoundContent={

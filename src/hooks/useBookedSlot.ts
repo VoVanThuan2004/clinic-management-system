@@ -5,6 +5,7 @@ import { getBookedSlotsApi } from "../services/appointment.service";
 type Props = {
   doctorId: string | null;
   date: string | null;
+  roomId: string | null;
 };
 
 export const useBookedSlot = (props: Props) => {

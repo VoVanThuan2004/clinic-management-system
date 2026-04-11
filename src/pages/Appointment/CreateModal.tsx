@@ -181,7 +181,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
               onFocus={() => setSearchPatient("")}
               onSearch={(value) => setSearchPatient(value)}
               options={options}
-              onSelect={(value, option) => {
+              onSelect={(option) => {
                 setSelectedPatient(option.patient);
               }}
               notFoundContent={
@@ -252,7 +252,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
               onFocus={() => setSearchDoctor("")}
               onSearch={(value) => setSearchDoctor(value)}
               options={optionDoctors}
-              onSelect={(value, option) => {
+              onSelect={(option) => {
                 setSelectedDoctor(option.doctor);
               }}
               notFoundContent={

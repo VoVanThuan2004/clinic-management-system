@@ -14,13 +14,22 @@ export const useAppointmentDetail = (appointmentId: string) => {
         const appointmentDetail = await getAppointmentDetail(appointmentId);
 
         setAppointment({
-          appointment_id: appointmentDetail.data.appointment_id,
-          status: appointmentDetail.data.status,
-          start_time: appointmentDetail.data.start_time,
-          reason: appointmentDetail.data.reason,
-          service_id: appointmentDetail.data.service_id,
-          patients: appointmentDetail.data.patients,
-          profiles: appointmentDetail.data.profiles,
+          appointment_id: appointmentDetail.data?.appointment_id,
+          status: appointmentDetail.data?.status,
+          start_time: appointmentDetail.data?.start_time,
+          reason: appointmentDetail.data?.reason,
+          service_id: appointmentDetail.data?.service_id,
+          patients: appointmentDetail.data?.patients,
+          employee: {
+            fullname: appointmentDetail.data?.employee.fullname
+          },
+          doctor: appointmentDetail.data?.doctor,
+          rooms: {
+            room_name: appointmentDetail.data?.rooms.room_name
+          },
+          services: {
+            service_name: appointmentDetail.data?.services.service_name
+          }
         });
       } catch (error) {
         console.log(error);

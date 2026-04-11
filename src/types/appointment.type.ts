@@ -59,6 +59,7 @@ export type CreateAppointmentData = {
 
 export type AppointmentDetail = {
   appointment_id: string;
+  service_id: string;
   start_time: string;
   status: string;
   reason: string;

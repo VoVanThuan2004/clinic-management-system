@@ -61,7 +61,7 @@ export const AppointmentModal = (props: Props) => {
     if (appointment) {
       form.setFieldsValue({
         patient: appointment.patients.id,
-        doctor: appointment.profiles.id,
+        doctor: appointment.doctor.id,
         date: dayjs(appointment.start_time),
         service: appointment.service_id,
         reason: appointment.reason,
@@ -71,12 +71,13 @@ export const AppointmentModal = (props: Props) => {
 
   // Gọi hook api lấy thời gian trống của doctor
   const { bookedData } = useBookedSlot({
-    doctorId: selectedDoctor?.id || appointment?.profiles?.id || null,
+    doctorId: selectedDoctor?.id || appointment?.doctor?.id || null,
     date: selectedDate
       ? selectedDate
       : appointment?.start_time
         ? dayjs(appointment.start_time).format("YYYY-MM-DD")
         : "",
+    roomId: "123"
   });
 
   const slots = useMemo(() => {
@@ -143,7 +144,6 @@ export const AppointmentModal = (props: Props) => {
     value: item.room_id,
   }));
 
-
   // Hook cập nhật lịch hẹn
   const updateAppointmentMutate = useUpdateAppointment();
 
@@ -207,7 +207,7 @@ export const AppointmentModal = (props: Props) => {
               onFocus={() => setSearchPatient("")}
               onSearch={(value) => setSearchPatient(value)}
               options={options}
-              onSelect={(value, option) => {
+              onSelect={(option) => {
                 setSelectedPatient(option.patient);
               }}
               notFoundContent={
@@ -323,7 +323,7 @@ export const AppointmentModal = (props: Props) => {
               onFocus={() => setSearchDoctor("")}
               onSearch={(value) => setSearchDoctor(value)}
               options={optionDoctors}
-              onSelect={(value, option) => {
+              onSelect={(option) => {
                 setSelectedDoctor(option.doctor);
               }}
               notFoundContent={
@@ -351,7 +351,6 @@ export const AppointmentModal = (props: Props) => {
               onSelect={(value) => {
                 setSelectedRoom(value);
               }}
-             
             />
           </Form.Item>
 
@@ -452,8 +451,7 @@ export const AppointmentModal = (props: Props) => {
     </Button>,
   ];
 
-
-  console.log("Room ID: ", selectedRoom)
+  console.log("Room ID: ", selectedRoom);
 
   return (
     <AppModal
