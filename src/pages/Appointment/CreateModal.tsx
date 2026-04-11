@@ -24,7 +24,6 @@ type Props = {
 export const CreateModal = ({ isOpen, onClose }: Props) => {
   const employee = useAuthStore((state) => state.user);
 
-
   // State quản lý chọn bệnh nhân
   const [searchPatient, setSearchPatient] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -181,7 +180,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
               onFocus={() => setSearchPatient("")}
               onSearch={(value) => setSearchPatient(value)}
               options={options}
-              onSelect={(option) => {
+              onSelect={(_, option) => {
                 setSelectedPatient(option.patient);
               }}
               notFoundContent={
@@ -252,7 +251,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
               onFocus={() => setSearchDoctor("")}
               onSearch={(value) => setSearchDoctor(value)}
               options={optionDoctors}
-              onSelect={(option) => {
+              onSelect={(_, option) => {
                 setSelectedDoctor(option.doctor);
               }}
               notFoundContent={
