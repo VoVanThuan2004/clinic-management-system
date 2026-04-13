@@ -49,6 +49,9 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
   // State quản lý chọn thời lượng khám
   const [durationMinutes, setDurationMinutes] = useState<number>();
 
+
+  // ==== ====
+
   // Gọi hook api select patients
   const { data, isLoading } = usePatientOption({
     searchPatient: debounceSearchPatient,
@@ -67,8 +70,10 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
     doctorId: selectedDoctor?.id || "",
     roomId: selectedRoom || "",
     date: selectedDate || "",
-    duration: 30,
+    duration: durationMinutes as number,
   });
+  const displaySlots = (selectedDoctor && selectedRoom && selectedDate && durationMinutes) ? slots : [];
+
 
   // Gọi hook api tạo lịch hẹn
   const useCreateAppointmentMutation = useCreateAppointment();
@@ -82,6 +87,10 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
     try {
       // Validate toàn bộ form trước khi submit, lấy giá trị
       const values = await form.validateFields();
+
+      console.log("Appointments: ", values);
+      console.log("Duration minutes: ", durationMinutes);
+      
 
       // Kiểm tra đã chọn slot thời gian khám chưa
       if (!selectedSlot) {
@@ -156,6 +165,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
     setSelectedDate(null);
     setSelectedSlot(null);
     setSelectedMedicalService(null);
+    setDurationMinutes(undefined);
     form.resetFields();
     onClose();
   };
@@ -370,16 +380,16 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
         )}
 
         {/* Empty */}
-        {!loading && slots.length === 0 && (
+        {!loading && displaySlots.length === 0 && (
           <p className="text-sm text-gray-400 italic">
             Không có khung giờ phù hợp
           </p>
         )}
 
         {/* Slots */}
-        {!loading && slots.length > 0 && (
+        {!loading && displaySlots.length > 0 && (
           <div className="grid grid-cols-4 gap-3">
-            {slots.map((time) => {
+            {displaySlots.map((time) => {
               const isSelected = selectedSlot === time;
 
               return (

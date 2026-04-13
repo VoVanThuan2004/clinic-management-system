@@ -204,6 +204,7 @@ export const createAppointmentApi = async (data: CreateAppointmentData) => {
       status: data.status,
       room_id: data.room_id,
       duration_minutes: data.duration_minutes,
+      employee_id: data.employee_id,
     },
   ]);
 };
