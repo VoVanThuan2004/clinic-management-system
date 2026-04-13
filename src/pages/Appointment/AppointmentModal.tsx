@@ -1,7 +1,7 @@
 import { useForm } from "antd/es/form/Form";
 import { AppModal } from "../../components/AppModal";
 import { Button, DatePicker, Form, message, Select } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { usePatientOption } from "../../hooks/usePatientOption";
 import { useDoctorOption } from "../../hooks/useDoctorOption";
@@ -10,13 +10,12 @@ import type { Patient } from "../../types/patient.type";
 import TextArea from "antd/es/input/TextArea";
 import { formatDate } from "../../utils/formatDate";
 import dayjs from "dayjs";
-import { useBookedSlot } from "../../hooks/useBookedSlot";
-import { generateAvailableSlots } from "../../utils/appointment/generate-available-slots";
 import { useAppointmentDetail } from "../../hooks/appointment/useAppointmentDetail";
 import { useUpdateAppointment } from "../../hooks/appointment/useUpdateAppointment";
 import type { AppointmentUpdate } from "../../types/appointment.type";
 import { useMedicalServiceOption } from "../../hooks/medical-service/useMedicalServiceOption";
 import { useRoomOption } from "../../hooks/room/useRoomOption";
+import { useAvailableSlots } from "../../hooks/appointment/useAvailableSlots";
 
 type Props = {
   isOpen: boolean;
@@ -27,6 +26,10 @@ type Props = {
 export const AppointmentModal = (props: Props) => {
   const { isOpen, onClose, appointmentId } = props;
   const [form] = useForm();
+
+  // Gọi hook api lấy chi tiết appointment
+  const { appointment, isLoading: isLoadingAppointment } =
+    useAppointmentDetail(appointmentId);
 
   // State quản lý chọn bệnh nhân
   const [searchPatient, setSearchPatient] = useState("");
@@ -39,69 +42,72 @@ export const AppointmentModal = (props: Props) => {
   const [debounceSearchDoctor] = useDebounce(searchDoctor, 500);
 
   // State quản lý chọn phòng khám
-  const [selectedRoom, setSelectedRoom] = useState("");
-
-  // Gọi hook api lấy chi tiết appointment
-  const { appointment, isLoading: isLoadingAppointment } =
-    useAppointmentDetail(appointmentId);
+  const [selectedRoom, setSelectedRoom] = useState(null);
 
   // State quản lý chọn ngày khám
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(() => {
-    // Nếu có appointment ngay từ đầu, lấy luôn giá trị đó
-    return appointment ? dayjs(appointment.start_time).format("HH:mm") : null;
-  });
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
 
   // State quản lý chọn dịch vụ khám
   const [selectedMedicalService, setSelectedMedicalService] = useState<
     string | null
   >(null);
 
+  // State quản lý chọn thời lượng khám
+  const [durationMinutes, setDurationMinutes] = useState<number>();
+
   useEffect(() => {
-    if (appointment) {
-      form.setFieldsValue({
-        patient: appointment.patients.id,
-        doctor: appointment.doctor.id,
-        date: dayjs(appointment.start_time),
-        service: appointment.service_id,
-        reason: appointment.reason,
-      });
+    if (!appointment) {
+      return;
     }
+
+    form.setFieldsValue({
+      patient: appointment.patients.id,
+      doctor: appointment.doctor.id,
+      date: dayjs(appointment.start_time),
+      service: appointment.service_id,
+      room: appointment.room_id,
+      estimated_duration_minutes: appointment.duration_minutes,
+      reason: appointment.reason,
+    });
   }, [appointment, form]);
 
-  // Gọi hook api lấy thời gian trống của doctor
-  const { bookedData } = useBookedSlot({
-    doctorId: selectedDoctor?.id || appointment?.doctor?.id || null,
-    date: selectedDate
-      ? selectedDate
-      : appointment?.start_time
-        ? dayjs(appointment.start_time).format("YYYY-MM-DD")
-        : "",
-    roomId: "123"
+  const appointmentDate = appointment
+    ? dayjs(appointment.start_time).format("YYYY-MM-DD")
+    : null;
+  const appointmentSlot = appointment
+    ? dayjs(appointment.start_time).format("HH:mm")
+    : null;
+  const effectiveSelectedDate = selectedDate ?? appointmentDate;
+  const effectiveSelectedSlot = selectedSlot ?? appointmentSlot;
+  const selectedDoctorId = selectedDoctor?.id ?? appointment?.doctor.id;
+  const selectedRoomId = selectedRoom ?? appointment?.room_id;
+
+  // Gọi hook api lấy thời gian trống cho lịch hẹn
+  const { slots, loading } = useAvailableSlots({
+    doctorId: selectedDoctorId ?? "",
+    roomId: selectedRoomId ?? "",
+    date: effectiveSelectedDate ?? "",
+    duration: durationMinutes ?? (appointment?.duration_minutes as number),
   });
 
-  const slots = useMemo(() => {
-    const dateStr = selectedDate
-      ? (selectedDate as string)
-      : appointment?.start_time
-        ? dayjs(appointment.start_time).format("YYYY-MM-DD")
-        : "";
+  const isSameAppointmentContext =
+    appointment &&
+    effectiveSelectedDate === appointmentDate &&
+    selectedDoctorId === appointment?.doctor.id &&
+    selectedRoomId === appointment?.room_id;
 
-    // 1. Tạo danh sách slot trống từ hàm helper
-    const availableSlots = generateAvailableSlots(bookedData, dateStr);
+  const displaySlots =
+    appointment?.doctor.id &&
+    appointment?.room_id &&
+    appointment?.start_time &&
+    appointment?.duration_minutes
+      ? isSameAppointmentContext && appointmentSlot
+        ? Array.from(new Set([appointmentSlot, ...slots]))
+        : slots
+      : [];
 
-    // 2. Nếu đang ở chế độ Edit, thêm giờ hiện tại của appointment vào đầu danh sách
-    if (appointment?.start_time) {
-      const currentTime = dayjs(appointment.start_time).format("HH:mm");
-
-      // Chỉ thêm nếu trong list chưa có (tránh trùng lặp)
-      if (!availableSlots.includes(currentTime)) {
-        availableSlots.unshift(currentTime);
-      }
-    }
-
-    return availableSlots;
-  }, [bookedData, selectedDate, appointment]);
+  
 
   // Gọi hook api select patients
   const { data, isLoading } = usePatientOption({
@@ -156,7 +162,6 @@ export const AppointmentModal = (props: Props) => {
   const onUpdateAppointment = async () => {
     // Validate toàn bộ form trước khi submit, lấy giá trị
     const values = await form.validateFields();
-
     // Kiểm tra đã chọn slot thời gian khám chưa
     if (!selectedSlot) {
       message.error("Vui lòng chọn giờ khám!");
@@ -165,15 +170,17 @@ export const AppointmentModal = (props: Props) => {
 
     // Tạo start_time
     const start_time = dayjs(
-      `${dayjs(values.date).format("YYYY-MM-DD")}T${selectedSlot}:00`,
+      `${dayjs(selectedDate).format("YYYY-MM-DD")}T${selectedSlot}:00`,
     ).toISOString();
 
     const appointmentUpdate: AppointmentUpdate = {
       appointment_id: props.appointmentId,
       patient_id: values.patient,
-      doctor_id: values.doctor,
+      doctor_id: selectedDoctor?.id as string,
       service_id: selectedMedicalService || values.service, // Nếu đã chọn dịch vụ mới thì lấy giá trị mới, ngược lại giữ nguyên
+      room_id: selectedRoom ?? values.room,
       start_time,
+      duration_minutes: durationMinutes as number,
       reason: values.reason,
     };
 
@@ -323,7 +330,7 @@ export const AppointmentModal = (props: Props) => {
               onFocus={() => setSearchDoctor("")}
               onSearch={(value) => setSearchDoctor(value)}
               options={optionDoctors}
-              onSelect={(option) => {
+              onSelect={(_, option) => {
                 setSelectedDoctor(option.doctor);
               }}
               notFoundContent={
@@ -373,6 +380,28 @@ export const AppointmentModal = (props: Props) => {
                 }}
               />
             </Form.Item>
+
+            {/* Thời lượng khám */}
+            <Form.Item
+              name="estimated_duration_minutes"
+              label="Thời lượng khám"
+              rules={[{ required: true, message: "Vui lòng chọn thời lượng!" }]}
+              className="w-full"
+            >
+              <Select
+                placeholder="Chọn thời lượng"
+                options={[
+                  { label: "15 phút", value: 15 },
+                  { label: "20 phút", value: 20 },
+                  { label: "30 phút", value: 30 },
+                  { label: "45 phút", value: 45 },
+                  { label: "60 phút", value: 60 },
+                ]}
+                className="h-[42px]"
+                value={durationMinutes}
+                onSelect={(value) => setDurationMinutes(value)}
+              />
+            </Form.Item>
           </div>
 
           {/* Chọn dịch vụ khám */}
@@ -409,30 +438,45 @@ export const AppointmentModal = (props: Props) => {
       </div>
 
       {/* RIGHT: SLOT PICKER */}
-      <div className="w-1/2 border-l border-gray-400 pl-4">
+      <div className="w-1/2 border-l border-gray-200 pl-4">
         <p className="text-sm font-semibold text-gray-600 mb-4">
           Chọn giờ khám
         </p>
 
-        <div className="grid grid-cols-4 gap-3">
-          {slots.map((time) => {
-            const isSelected = selectedSlot === time;
+        {/* Loading */}
+        {loading && (
+          <p className="text-sm text-gray-400">Đang tải khung giờ...</p>
+        )}
 
-            return (
-              <button
-                key={time}
-                onClick={() => setSelectedSlot(time)} // 3. Set giá trị khi click
-                className={`py-2 rounded-xl text-sm font-medium transition-all border ${
-                  isSelected
-                    ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-100" // Style khi được chọn
-                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50" // Style mặc định
-                }`}
-              >
-                {time}
-              </button>
-            );
-          })}
-        </div>
+        {/* Empty */}
+        {!loading && displaySlots.length === 0 && (
+          <p className="text-sm text-gray-400 italic">
+            Không có khung giờ phù hợp
+          </p>
+        )}
+
+        {/* Slots */}
+        {!loading && displaySlots.length > 0 && (
+          <div className="grid grid-cols-4 gap-3">
+            {displaySlots.map((time) => {
+              const isSelected = effectiveSelectedSlot === time;
+
+              return (
+                <button
+                  key={time}
+                  onClick={() => setSelectedSlot(time)}
+                  className={`py-2 rounded-xl text-sm font-medium transition-all border ${
+                    isSelected
+                      ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                      : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                  }`}
+                >
+                  {time}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

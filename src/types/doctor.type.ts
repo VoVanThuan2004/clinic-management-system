@@ -1,5 +1,5 @@
 export type Doctor = {
-  id: string;
+  id: string | null;
   fullname: string;
   roles: {
     id: string;

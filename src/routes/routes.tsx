@@ -18,6 +18,8 @@ import { DoctorPage } from "../pages/Doctor";
 import { CategoryPage } from "../pages/Category";
 import { PatientHistory } from "../pages/Patient/PatientHistory";
 import { MedicinePage } from "../pages/Medicine";
+import { RoomPage } from "../pages/Room";
+import { ServicePage } from "../pages/Service";
 
 const routes = createBrowserRouter([
   {
@@ -144,12 +146,12 @@ const routes = createBrowserRouter([
             ]
           },
           {
-            path: "appointments",
-            element: <AppointmentPage />
+            path: "rooms",
+            element: <RoomPage />
           },
           {
-            path: "medical-records",
-            element: <MedicalRecordPage />
+            path: "services",
+            element: <ServicePage />
           },
           {
             path: "categories",

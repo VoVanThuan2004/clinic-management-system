@@ -1,4 +1,4 @@
-import { Calendar, ClipboardPlus, Pill, Tags, Users } from "lucide-react";
+import { Calendar, ClipboardPlus, DoorOpen, Pill, Stethoscope, Tags, Users } from "lucide-react";
 
 export type SidebarItem = {
   key: string;
@@ -68,29 +68,43 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
         },
       ],
     },
+    // {
+    //   key: "appointments",
+    //   to: "/admin/appointments",
+    //   label: "Quản lý lịch khám",
+    //   icon: <Calendar size={20} />,
+    // },
+    // {
+    //   key: "medical-records",
+    //   to: "/admin/medical-records",
+    //   label: "Quản lý hồ sơ khám",
+    //   icon: <ClipboardPlus size={20} />,
+    // },
+
     {
-        key: "appointments",
-        to: "/admin/appointments",
-        label: "Quản lý lịch khám",
-        icon: <Calendar size={20} />,
+      key: "rooms",
+      to: "/admin/rooms",
+      label: "Quản lý phòng",
+      icon: <DoorOpen size={20} />,
+    },
+
+    {
+      key: "services",
+      to: "/admin/services",
+      label: "Quản lý dịch vụ khám",
+      icon: <Stethoscope size={20} />,
     },
     {
-        key: "medical-records",
-        to: "/admin/medical-records",
-        label: "Quản lý hồ sơ khám",
-        icon: <ClipboardPlus size={20} />,
+      key: "categories",
+      to: "/admin/categories",
+      label: "Quản lý danh mục",
+      icon: <Tags size={20} />,
     },
     {
-        key: "categories",
-        to: "/admin/categories",
-        label: "Quản lý danh mục",
-        icon: <Tags size={20} />,
-    },
-    {
-        key: "medicines",
-        to: "/admin/medicines",
-        label: "Quản lý thuốc",
-        icon: <Pill size={20} />,
+      key: "medicines",
+      to: "/admin/medicines",
+      label: "Quản lý thuốc",
+      icon: <Pill size={20} />,
     },
   ],
 };

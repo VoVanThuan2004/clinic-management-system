@@ -60,7 +60,9 @@ export type CreateAppointmentData = {
 export type AppointmentDetail = {
   appointment_id: string;
   service_id: string;
+  room_id: string;
   start_time: string;
+  duration_minutes: number;
   status: string;
   reason: string;
   patients: Patient;
@@ -81,6 +83,8 @@ export type AppointmentUpdate = {
   start_time: string;
   reason: string;
   service_id: string;
+  room_id: string;
+  duration_minutes: number;
   patient_id: string;
   doctor_id: string;
 }

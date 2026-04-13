@@ -17,8 +17,10 @@ export const useAppointmentDetail = (appointmentId: string) => {
           appointment_id: appointmentDetail.data?.appointment_id,
           status: appointmentDetail.data?.status,
           start_time: appointmentDetail.data?.start_time,
+          duration_minutes: appointmentDetail.data?.duration_minutes,
           reason: appointmentDetail.data?.reason,
           service_id: appointmentDetail.data?.service_id,
+          room_id: appointmentDetail.data?.room_id,
           patients: appointmentDetail.data?.patients,
           employee: {
             fullname: appointmentDetail.data?.employee.fullname
