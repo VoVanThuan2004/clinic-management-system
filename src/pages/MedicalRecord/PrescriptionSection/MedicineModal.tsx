@@ -19,7 +19,7 @@ export const MedicineModal = (props: Props) => {
   const [categoryId, setCategoryId] = useState("all");
   const [pagination, setPagination] = useState({
     page: 1,
-    pageSize: 3,
+    pageSize: 6,
   });
   const [searchMedicine, setSearchMedicine] = useState("");
   const [searchMedicineDebouned] = useDebounce(searchMedicine, 500);

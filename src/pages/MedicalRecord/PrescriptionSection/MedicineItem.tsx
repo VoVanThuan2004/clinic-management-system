@@ -38,7 +38,7 @@ export const MedicineItem = (props: Props) => {
       {/* Ảnh thuốc */}
       <div className="relative overflow-hidden rounded-sm">
         <img
-          src="https://picsum.photos/200/300"
+          src={medicine.image}
           alt="Thuốc"
           className="w-full h-42 object-cover group-hover:scale-105 transition-transform duration-300"
         />

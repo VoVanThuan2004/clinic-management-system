@@ -1,4 +1,4 @@
-import { Calendar, ClipboardPlus, DoorOpen, Pill, Stethoscope, Tags, Users } from "lucide-react";
+import { Calendar, ClipboardPlus, DoorOpen, LayoutDashboard, Pill, Stethoscope, Tags, Users } from "lucide-react";
 
 export type SidebarItem = {
   key: string;
@@ -68,18 +68,6 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
         },
       ],
     },
-    // {
-    //   key: "appointments",
-    //   to: "/admin/appointments",
-    //   label: "Quản lý lịch khám",
-    //   icon: <Calendar size={20} />,
-    // },
-    // {
-    //   key: "medical-records",
-    //   to: "/admin/medical-records",
-    //   label: "Quản lý hồ sơ khám",
-    //   icon: <ClipboardPlus size={20} />,
-    // },
 
     {
       key: "rooms",
@@ -105,6 +93,12 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
       to: "/admin/medicines",
       label: "Quản lý thuốc",
       icon: <Pill size={20} />,
+    },
+      {
+      key: "dashboard",
+      to: "/admin/dashboard",
+      label: "Dashboard",
+      icon: <LayoutDashboard size={20} />,
     },
   ],
 };

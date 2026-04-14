@@ -174,7 +174,7 @@ export const PatientHistoryList = ({
                 <span>
                   Phương thức:{" "}
                   <span className="uppercase text-gray-600 font-medium">
-                    {payment.payment_method || "N/A"}
+                    {payment.payment_method === "cash" ? "Tiền mặt" : "Chuyển khoản"}
                   </span>
                 </span>
                 <span
