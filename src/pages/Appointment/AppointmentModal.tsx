@@ -170,7 +170,7 @@ export const AppointmentModal = (props: Props) => {
 
     // Tạo start_time
     const start_time = dayjs(
-      `${dayjs(selectedDate).format("YYYY-MM-DD")}T${selectedSlot}:00`,
+      `${dayjs(selectedDate ?? values.date).format("YYYY-MM-DD")}T${selectedSlot}:00`,
     ).toISOString();
 
     const appointmentUpdate: AppointmentUpdate = {

@@ -120,7 +120,7 @@ export const MedicinePage = () => {
       fileObj = values.image?.fileList?.[0]?.originFileObj;
     } else if (values.image?.[0].url) {
       // ảnh cũ
-      imageUrl = values.image?.[0].file.url;
+      imageUrl = values.image?.[0].url;
     }
 
 

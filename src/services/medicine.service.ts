@@ -20,7 +20,7 @@ export const getMedicinesByCategory = async (props: Props) => {
     let query = supabase
       .from("medicines")
       .select(
-        "medicine_id, medicine_name, unit, original_price, selling_price, stock_quantity, image, description, category_id",
+        "medicine_id, medicine_name, unit, original_price, selling_price, stock_quantity, image, description, category_id, status",
         { count: "exact" }, // Đếm tổng số record
       )
       .range(from, to)
@@ -35,7 +35,7 @@ export const getMedicinesByCategory = async (props: Props) => {
   let query = supabase
     .from("medicines")
     .select(
-      "medicine_id, medicine_name, unit, original_price, selling_price, stock_quantity, image, description",
+      "medicine_id, medicine_name, unit, original_price, selling_price, stock_quantity, image, description, status",
       { count: "exact" }, // Đếm tổng số record
     )
     .eq("category_id", category_id)
@@ -136,7 +136,7 @@ export const updateMedicine = async (medicine: UpdateMedicineParams) => {
   let newImage = medicine.image;
   if (medicine.fileObj) {
     if (medicine.image) {
-      console.log("medicineOldImage: ", medicine.image)
+      console.log("medicineOldImage: ", medicine.image);
       await deleteFile(medicine.image);
     }
     const filePath = `medicines/${Date.now()}_${medicine.fileObj.name}`;

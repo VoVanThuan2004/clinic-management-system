@@ -17,8 +17,10 @@ export const usePayMedicalRecord = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["medical-records"] });
     },
-    onError: () => {
+    onError: (error) => {
       message.error("Lỗi khi xác nhận thanh toán. Vui lòng thử lại");
+      console.log(error);
+      
     },
   });
 };

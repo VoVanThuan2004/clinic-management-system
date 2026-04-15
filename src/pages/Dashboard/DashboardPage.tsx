@@ -111,7 +111,7 @@ export const DashboardPage = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <RevenueChart data={data} loading={isLoading || isLoadingStats} />
         <TopMedicines
           data={topMedicinesData}

@@ -1,5 +1,8 @@
 import { supabase } from "../lib/supabase";
-import type { MedicalRecordDetail, MedicalRecordPDF } from "../types/medical-record.type";
+import type {
+  MedicalRecordDetail,
+  MedicalRecordPDF,
+} from "../types/medical-record.type";
 
 // API kiểm tra medical record của bệnh nhân theo lịch hẹn có tồn tại chưa
 export const checkMedicalRecord = async (appointment_id: string) => {
@@ -114,11 +117,11 @@ export const getMedicalRecords = async (params: {
   }
 
   if (paymentStatus === true) {
-    query = query.eq("payment_status", paymentStatus)
+    query = query.eq("payment_status", paymentStatus);
   }
 
   if (paymentStatus === false) {
-    query = query.eq("payment_status", paymentStatus)
+    query = query.eq("payment_status", paymentStatus);
   }
 
   const res = await query;
@@ -137,57 +140,64 @@ export const payMedicalRecord = async (params: {
   totalMedicine: number;
   totalAmount: number;
 }) => {
-  const { recordId, serviceFee, totalMedicine, totalAmount } = params;
+  // // insert dữ liệu vào payments
+  // const { data, error } = await supabase
+  //   .from("payments")
+  //   .insert({
+  //     record_id: recordId,
+  //     service_fee: serviceFee,
+  //     total_medicine: totalMedicine,
+  //     total_amount: totalAmount,
+  //     payment_status: true,
+  //     payment_method: "cash"
+  //   })
+  //   .select("payment_id")
+  //   .single();
 
-  // insert dữ liệu vào payments
-  const { data, error } = await supabase
-    .from("payments")
-    .insert({
-      record_id: recordId,
-      service_fee: serviceFee,
-      total_medicine: totalMedicine,
-      total_amount: totalAmount,
-      payment_status: true,
-      payment_method: "cash"
-    })
-    .select("payment_id")
-    .single();
+  // if (error) throw error;
+
+  // // Cập nhật trạng thái medical records
+  // if (data) {
+  //   const { data: appointment, error: medicalRecordError } = await supabase
+  //     .from("medical_records")
+  //     .update({
+  //       payment_status: true,
+  //     })
+  //     .eq("record_id", recordId)
+  //     .select("appointment_id")
+  //     .single();
+
+  //   if (medicalRecordError) throw error;
+
+  //   // Cập nhật trạng thái appointment
+  //   if (appointment) {
+  //     const { error: appointmentError } = await supabase
+  //       .from("appointments")
+  //       .update({
+  //         status: "completed",
+  //       })
+  //       .eq("appointment_id", appointment.appointment_id);
+
+  //     if (appointmentError) throw error;
+  //   }
+  // }
+
+  const { error } = await supabase.rpc("pay_medical_record_fn", {
+    p_record_id: params.recordId,
+    p_service_fee: params.serviceFee,
+    p_total_medicine: params.totalMedicine,
+    p_total_amount: params.totalAmount,
+  });
 
   if (error) throw error;
-
-  // Cập nhật trạng thái medical records
-  if (data) {
-    const { data: appointment, error: medicalRecordError } = await supabase
-      .from("medical_records")
-      .update({
-        payment_status: true,
-      })
-      .eq("record_id", recordId)
-      .select("appointment_id")
-      .single();
-
-    if (medicalRecordError) throw error;
-
-    // Cập nhật trạng thái appointment
-    if (appointment) {
-      const { error: appointmentError } = await supabase
-        .from("appointments")
-        .update({
-          status: "completed",
-        })
-        .eq("appointment_id", appointment.appointment_id);
-
-      if (appointmentError) throw error;
-    }
-  }
 };
-
 
 // Api lấy chi tiết hồ sơ khám - xuất ra pdf
 export const getMedicalRecordPDF = async (recordId: string) => {
   const { data, error } = await supabase
     .from("medical_records")
-    .select(`
+    .select(
+      `
       record_id,
       appointment_id,
       symptoms,
@@ -240,21 +250,24 @@ export const getMedicalRecordPDF = async (recordId: string) => {
         total_amount,
         payment_method
       )
-    `)
+    `,
+    )
     .eq("record_id", recordId)
     .single();
 
   if (error) throw error;
 
   const appointmentData: any = data?.appointments;
-    
-    // Nếu appointments là mảng, lấy phần tử 0. Nếu là object, lấy chính nó.
-    const appointment = Array.isArray(appointmentData) ? appointmentData[0] : appointmentData;
-    
-    // Tương tự cho services nằm bên trong appointment
-    const serviceData = appointment?.services;
-    const serviceInfo = Array.isArray(serviceData) ? serviceData[0] : serviceData;
-  
+
+  // Nếu appointments là mảng, lấy phần tử 0. Nếu là object, lấy chính nó.
+  const appointment = Array.isArray(appointmentData)
+    ? appointmentData[0]
+    : appointmentData;
+
+  // Tương tự cho services nằm bên trong appointment
+  const serviceData = appointment?.services;
+  const serviceInfo = Array.isArray(serviceData) ? serviceData[0] : serviceData;
+
   const formattedData = {
     ...data,
     services: serviceInfo || null,

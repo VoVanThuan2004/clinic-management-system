@@ -7,6 +7,7 @@ export type Medicine = {
   selling_price: number;
   stock_quantity: number;
   description: string;
+  status: boolean;
 };
 
 export type AddMedicineParams = {

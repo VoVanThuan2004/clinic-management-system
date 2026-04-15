@@ -277,6 +277,8 @@ export const updateAppointment = async (props: AppointmentUpdate) => {
     start_time,
     reason,
     service_id,
+    room_id,
+    duration_minutes
   } = props;
 
   return await supabase
@@ -287,6 +289,8 @@ export const updateAppointment = async (props: AppointmentUpdate) => {
       start_time,
       reason,
       service_id,
+      room_id,
+      duration_minutes
     })
     .eq("appointment_id", appointment_id);
 };

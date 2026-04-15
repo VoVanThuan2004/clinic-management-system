@@ -4,10 +4,8 @@ import * as XLSX from "xlsx";
 
 const formatStatus = (status: string) => {
   switch (status) {
-    case "pending":
-      return "Đang chờ";
-    case "confirmed":
-      return "Đã đặt";
+    case "scheduled":
+      return "Đã đặt lịch";
     case "checked_in":
       return "Đã đến";
     case "examining":
