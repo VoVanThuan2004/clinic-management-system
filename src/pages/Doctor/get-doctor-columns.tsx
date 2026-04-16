@@ -1,13 +1,18 @@
 import { Avatar, Popconfirm, Space } from "antd";
 import { formatDate } from "../../utils/formatDate";
-import { SquarePen, Trash2Icon } from "lucide-react";
+import { Key, SquarePen, Trash2Icon } from "lucide-react";
 
 type Props = {
   onOpenUpdate: (record: any) => void;
   onDelete: (id: string) => void;
+  onResetPassword: (email: string) => Promise<void>;
 };
 
-export const getDoctorColumns = ({ onOpenUpdate, onDelete }: Props) => [
+export const getDoctorColumns = ({
+  onOpenUpdate,
+  onDelete,
+  onResetPassword,
+}: Props) => [
   {
     title: "Email",
     dataIndex: "email",
@@ -64,7 +69,8 @@ export const getDoctorColumns = ({ onOpenUpdate, onDelete }: Props) => [
   {
     title: "Năm kinh nghiệm",
     key: "experience_years",
-    render: (_: any, record: any) => record.doctor_details?.experience_years || "-",
+    render: (_: any, record: any) =>
+      record.doctor_details?.experience_years || "-",
   },
   {
     title: "Tiểu sử",
@@ -81,6 +87,16 @@ export const getDoctorColumns = ({ onOpenUpdate, onDelete }: Props) => [
           className="text-yellow-500 cursor-pointer"
           onClick={() => onOpenUpdate(record)}
         />
+
+        <Popconfirm
+          title="Reset mật khẩu"
+          description={`Gửi email reset password tới ${record.email}?`}
+          onConfirm={() => onResetPassword(record.email)}
+          okText="Gửi"
+          cancelText="Hủy"
+        >
+          <Key size={18} className="text-blue-500 cursor-pointer" />
+        </Popconfirm>
 
         <Popconfirm
           title="Xóa nhân viên"

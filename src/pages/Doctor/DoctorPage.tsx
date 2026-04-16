@@ -3,11 +3,12 @@ import { Toolbar } from "./Toolbar";
 import { useDebounce } from "use-debounce";
 import { useDoctors } from "../../hooks/doctor/useDoctors";
 import { BaseTable } from "../../components/Table";
-import { Input } from "antd";
+import { Input, message } from "antd";
 import { getDoctorColumns } from "./get-doctor-columns";
 import type { DoctorResponse } from "../../types/doctor.type";
 import { DoctorCreateModal } from "./DoctorCreateModal";
 import { DoctorUpdateModal } from "./DoctorUpdateModal";
+import { resetPasswordForEmail } from "../../services/auth.service";
 const { Search } = Input;
 
 export const DoctorPage = () => {
@@ -53,9 +54,23 @@ export const DoctorPage = () => {
     setIsOpenUpdate(false);
   };
 
+  // Hàm gọi reset mật khẩu
+  const onResetPassword = async (email: string) => {
+    if (!email) return;
+
+    try {
+      await resetPasswordForEmail(email);
+      message.success("Đã gửi email reset mật khẩu");
+    } catch (error) {
+      console.log(error);
+      message.error("Có lỗi xảy ra, vui lòng thử lại!");
+    }
+  };
+
   const columns = getDoctorColumns({
     onOpenUpdate: onOpenUpdateModal,
     onDelete: () => {},
+    onResetPassword
   });
 
   return (

@@ -1,14 +1,15 @@
 import { Avatar, Popconfirm, Space } from "antd";
 import { formatDate } from "../../utils/formatDate";
-import { SquarePen, Trash2Icon } from "lucide-react";
+import { Key, SquarePen, Trash2Icon } from "lucide-react";
 import type { Employee } from "../../types/employee";
 
 type Props = {
   onOpenUpdate: (employee: Employee) => void;
   onDelete: (id: string) => void;
+  onResetPassword: (email: string) => Promise<void>;
 };
 
-export const getEmployeeColumns = ({ onOpenUpdate, onDelete }: Props) => [
+export const getEmployeeColumns = ({ onOpenUpdate, onDelete,onResetPassword }: Props) => [
   {
     title: "Email",
     dataIndex: "email",
@@ -62,12 +63,21 @@ export const getEmployeeColumns = ({ onOpenUpdate, onDelete }: Props) => [
     key: "action",
     render: (_: any, record: any) => (
       <Space>
-
         <SquarePen
           size={18}
           className="text-yellow-500 cursor-pointer"
           onClick={() => onOpenUpdate(record)}
         />
+
+        <Popconfirm
+          title="Reset mật khẩu"
+          description={`Gửi email reset password tới ${record.email}?`}
+          onConfirm={() => onResetPassword(record.email)}
+          okText="Gửi"
+          cancelText="Hủy"
+        >
+          <Key size={18} className="text-blue-500 cursor-pointer" />
+        </Popconfirm>
 
         <Popconfirm
           title="Xóa nhân viên"

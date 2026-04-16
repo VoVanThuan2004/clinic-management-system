@@ -173,11 +173,17 @@ export const LoginForm = () => {
           )}
         </div>
 
+
+        {/* Reset password */}
+        {/* <div className="flex justify-end">
+          <p className="text-sm font-mono text-blue-500" onClick={() => navigate}>Quên mật khẩu?</p>
+        </div> */}
+
         {/* Sign in */}
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-blue-500 w-full px-3 py-4 rounded-xl text-white text-xl font-medium shadow-md mb-2 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+          className="bg-blue-500 w-full px-3 py-4 rounded-xl text-white text-xl font-medium shadow-md mb-2 mt-3 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
         >
           {isLoading && (
             <svg

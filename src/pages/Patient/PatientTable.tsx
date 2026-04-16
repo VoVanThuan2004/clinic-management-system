@@ -15,13 +15,15 @@ type Props = {
   selectedRowKeys: React.Key[];
   onSelectChange: (keys: React.Key[]) => void;
   isLoadingDelete: boolean;
+  role: string;
 };
 
 export const PatientTable = ({
   debounceSearch,
   selectedRowKeys,
   onSelectChange,
-  isLoadingDelete
+  isLoadingDelete,
+  role,
 }: Props) => {
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [patientUpdate, setPatientUpdate] = useState<Patient>();
@@ -53,21 +55,24 @@ export const PatientTable = ({
   const handleUpdate = (values: PatientUpdate) => {
     const formattedValues = {
       ...values,
-      date_of_birth: values.date_of_birth 
+      date_of_birth: values.date_of_birth
         ? dayjs(values.date_of_birth).format("YYYY-MM-DD")
         : "",
     };
 
     if (!values) return;
-    useUpdatePatientMutate.mutate({
-      patientId: patientId,
-      patientUpdate: formattedValues,
-    }, {
-      onSuccess: () => {
-        message.success("Cập nhật bệnh nhân thành công");
-        setIsUpdateOpen(false);
-      }
-    });
+    useUpdatePatientMutate.mutate(
+      {
+        patientId: patientId,
+        patientUpdate: formattedValues,
+      },
+      {
+        onSuccess: () => {
+          message.success("Cập nhật bệnh nhân thành công");
+          setIsUpdateOpen(false);
+        },
+      },
+    );
   };
 
   const handleDelete = async (id: string) => {
@@ -76,14 +81,19 @@ export const PatientTable = ({
 
   const onViewPatientHistory = (patientId: string) => {
     if (!patientId) return;
-    navigate(`/employee/patients/${patientId}`);
-  }
+    if (role === "employee") {
+      navigate(`/employee/patients/${patientId}`);
+    }
+    if (role === "admin") {
+      navigate(`/admin/users/patients/${patientId}`);
+    }
+  };
 
   // Lấy các column đã định nghĩa trong table
   const columns = getPatientColumns({
     onEdit: showUpdateModal,
     onDelete: handleDelete,
-    onViewPatientHistory
+    onViewPatientHistory,
   });
 
   const onClose = () => {

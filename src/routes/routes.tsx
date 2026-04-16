@@ -6,8 +6,6 @@ import { EmployeeRoute } from "../routes/EmployeeRoute";
 import { DoctorRoute } from "../routes/DoctorRoute";
 import { PatientPage } from "../pages/Patient";
 import { AppointmentPage } from "../pages/Appointment";
-import { MedicalRecordDetail } from '../pages/MedicalRecord/MedicalRecordDetail';
-import { MedicalRecordPage } from "../pages/MedicalRecord";
 import { ChangePasswordPage } from "../pages/RecoveryPassword";
 import HomePage from "../pages/Home";
 import { LoginPage } from "../pages/Login";
@@ -21,6 +19,9 @@ import { MedicinePage } from "../pages/Medicine";
 import { RoomPage } from "../pages/Room";
 import { ServicePage } from "../pages/Service";
 import { DashboardPage } from "../pages/Dashboard";
+import { MedicalRecordPage } from "../pages/MedicalRecord/MedicalRecordPage";
+import { MedicalRecordDetail } from "../pages/MedicalRecord";
+import { ResetPasswordPage } from "../pages/Reset-Password";
 
 const routes = createBrowserRouter([
   {
@@ -32,9 +33,13 @@ const routes = createBrowserRouter([
       },
       {
         path: "/",
-        element: <HomePage />
-      }
+        element: <HomePage />,
+      },
     ],
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPasswordPage />,
   },
 
   {
@@ -58,23 +63,23 @@ const routes = createBrowserRouter([
           },
           {
             path: "appointments",
-            element: <AppointmentPage />
+            element: <AppointmentPage />,
           },
           {
             path: "medical-records",
-            element: <MedicalRecordPage />
+            element: <MedicalRecordPage />,
           },
           {
             path: "medical-records/:record_id",
-            element: <MedicalRecordDetail />
+            element: <MedicalRecordDetail />,
           },
           {
             path: "profile",
-            element: <Profile />
+            element: <Profile />,
           },
           {
             path: "change-password",
-            element: <ChangePasswordPage />
+            element: <ChangePasswordPage />,
           },
         ],
       },
@@ -90,33 +95,32 @@ const routes = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to={"appointments"} replace />
+            element: <Navigate to={"appointments"} replace />,
           },
           {
             path: "appointments",
-            element: <AppointmentPage />
+            element: <AppointmentPage />,
           },
           {
             path: "medical-records",
-            element: <MedicalRecordPage />
+            element: <MedicalRecordPage />,
           },
           {
             path: "medical-records/:record_id",
-            element: <MedicalRecordDetail />
+            element: <MedicalRecordDetail />,
           },
           {
             path: "profile",
-            element: <Profile />
+            element: <Profile />,
           },
           {
             path: "change-password",
-            element: <ChangePasswordPage />
+            element: <ChangePasswordPage />,
           },
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
-
 
   {
     path: "/admin",
@@ -127,56 +131,62 @@ const routes = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to={"users/patients"} replace />
+            element: <Navigate to={"users/patients"} replace />,
           },
           {
             path: "users",
             children: [
               {
                 path: "patients",
-                element: <PatientPage />
+                element: <PatientPage />,
+              },
+
+              {
+                path: "patients/:patientId",
+                element: <PatientHistory />,
               },
               {
                 path: "doctors",
-                element: <DoctorPage />
+                element: <DoctorPage />,
               },
               {
                 path: "employees",
-                element: <EmployeePage />
-              }
-            ]
+                element: <EmployeePage />,
+              },
+            ],
           },
+
           {
             path: "rooms",
-            element: <RoomPage />
+            element: <RoomPage />,
           },
           {
             path: "services",
-            element: <ServicePage />
+            element: <ServicePage />,
           },
           {
             path: "categories",
-            element: <CategoryPage />
+            element: <CategoryPage />,
           },
           {
             path: "medicines",
-            element: <MedicinePage />
+            element: <MedicinePage />,
           },
           {
             path: "dashboard",
-            element: <DashboardPage />
+            element: <DashboardPage />,
           },
           {
             path: "profile",
-            element: <Profile />
+            element: <Profile />,
           },
           {
             path: "change-password",
-            element: <ChangePasswordPage />
-          }
-        ]
+            element: <ChangePasswordPage />,
+          },
+        ],
       },
-    ]
+    ],
   },
 
   // Not found

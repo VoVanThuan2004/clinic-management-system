@@ -6,9 +6,12 @@ import { PatientTable } from "./PatientTable";
 import { useDebounce } from "use-debounce";
 import { useDeletePatients } from "../../hooks/useDeletePatients";
 import { getPatientMedicalHistory } from "../../services/patient.service";
+import { useAuthStore } from "../../stores/useAuthStore";
 const { Search } = Input;
 
 export const PatientPage = () => {
+  const role = useAuthStore((state) => state.user?.roleName);
+
   const [isAddOpen, setIsAddOpen] = useState(false);
 
   // State quản lý tìm kiếm bệnh nhân
@@ -84,6 +87,7 @@ export const PatientPage = () => {
         selectedRowKeys={selectedRowKeys}
         onSelectChange={setSelectedRowKeys}
         isLoadingDelete={useDeletePatientsMutate.isPending}
+        role={role as string}
       />
 
       <AddPatientModal open={isAddOpen} onClose={onClose} />

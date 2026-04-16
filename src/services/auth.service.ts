@@ -46,13 +46,15 @@ export const loginApi = async ({
 
 export const getRoleByName = async (name: string) => {
   const { data, error } = await supabase
-  .from("roles")
-  .select(`
+    .from("roles")
+    .select(
+      `
     id,
     name
-    `)
-  .eq("name", name)
-  .single();
+    `,
+    )
+    .eq("name", name)
+    .single();
 
   // custom error message
   if (error) {
@@ -60,15 +62,15 @@ export const getRoleByName = async (name: string) => {
   }
 
   return data;
-}
+};
 
 // Kiểm tra email đã tồn tại hay chưa
 export const checkEmailExists = async (email: string) => {
   const { error } = await supabase
-  .from("profiles")
-  .select("email")
-  .eq("email", email)
-  .single();
+    .from("profiles")
+    .select("email")
+    .eq("email", email)
+    .single();
 
   if (error) {
     if (error.code === "PGRST116") {
@@ -80,4 +82,22 @@ export const checkEmailExists = async (email: string) => {
   }
 
   return false;
-}
+};
+
+// Reset mật khẩu
+export const resetPasswordForEmail = async (email: string) => {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+
+  if (error) throw error;
+};
+
+// Thay đổi mật khẩu
+export const changePassword = async (password: string) => {
+  const { error } = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error) throw error;
+};

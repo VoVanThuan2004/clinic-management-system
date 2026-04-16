@@ -3,11 +3,12 @@ import { BaseTable } from "../../components/Table";
 import { useEmployees } from "../../hooks/employee/useEmployees";
 import { getEmployeeColumns } from "./get-employee-columns";
 import { Toolbar } from "./Toolbar";
-import { Input } from "antd";
+import { Input, message } from "antd";
 import type { Employee } from "../../types/employee";
 import { useDebounce } from "use-debounce";
 import { EmployeeCreateModal } from "./EmployeeCreateModal";
 import { EmployeeUpdateModal } from "./EmployeeUpdateModal";
+import { resetPasswordForEmail } from "../../services/auth.service";
 const { Search } = Input;
 
 export const EmployeePage = () => {
@@ -52,11 +53,26 @@ export const EmployeePage = () => {
     setSelectedEmployee(null);
   };
 
+
+  // Hàm gọi reset mật khẩu
+  const onResetPassword = async (email: string) => {
+    if (!email) return;
+
+    try {
+      await resetPasswordForEmail(email);
+      message.success("Đã gửi email reset mật khẩu");
+    } catch (error) {
+      console.log(error);
+      message.error("Có lỗi xảy ra, vui lòng thử lại!");
+    }
+  }
+
   const columns = getEmployeeColumns({
     onOpenUpdate: openUpdateModal,
     onDelete: (id) => {
       console.log("Delete", id);
     },
+    onResetPassword
   });
 
   return (
