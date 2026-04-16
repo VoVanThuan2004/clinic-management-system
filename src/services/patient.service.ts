@@ -142,3 +142,6 @@ export const getPatientMedicalHistory = async (patientId: string) => {
 
   return data as unknown as PatientHistory[];
 };
+
+
+// Lấy tổng số bệnh nhân hôm nay

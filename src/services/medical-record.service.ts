@@ -275,3 +275,15 @@ export const getMedicalRecordPDF = async (recordId: string) => {
 
   return { data: formattedData as unknown as MedicalRecordPDF };
 };
+
+// Lấy tổng hồ sơ khám - có trạng thái payment status = true
+export const getTotalMedicalRecord = async () => {
+  const { count, error } = await supabase
+    .from("medical_records")
+    .select("record_id", { count: "exact", head: true })
+    .eq("payment_status", true);
+
+  if (error) throw error;
+
+  return count || 0;
+};
