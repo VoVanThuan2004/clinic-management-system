@@ -24,7 +24,10 @@ export const getAppointmentsCalendar = async (
         status,
         doctor_id,
         patients(id, full_name, phone_number),
-        rooms(room_name)  
+        profiles!doctor_id (
+          fullname
+        ),
+        rooms(room_name)
       `,
     )
     .eq("doctor_id", doctor_id)
@@ -39,6 +42,7 @@ export const getAppointmentsCalendar = async (
       ...item,
       patients: Array.isArray(item.patients) ? item.patients[0] : item.patients,
       rooms: Array.isArray(item.rooms) ? item.rooms[0] : item.rooms,
+      profiles: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles,
     })),
   };
 };

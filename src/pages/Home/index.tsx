@@ -6,15 +6,25 @@ import {
   Users,
   Video,
 } from "lucide-react";
-import { Button, Card } from "antd";
+import dayjs from "dayjs";
+import { Button, Card, Skeleton } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useTotalMedicalRecords } from "../../hooks/medical-record/useTotalMedicalRecords";
+import { useAppointmentList } from "../../hooks/useAppointmentList";
 
 export default function HomePage() {
   const navigate = useNavigate();
 
   // Gọi hook lấy tổng medical records
   const { total, isLoading } = useTotalMedicalRecords();
+
+  // Gọi hook api lấy lịch khám hôm nay
+  const { data, isLoading: isLoadingAppointment } = useAppointmentList({
+    date: dayjs(),
+    page: 1,
+    pageSize: 5,
+  });
+  const appointments = data?.data ?? [];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -115,22 +125,52 @@ export default function HomePage() {
                       Lịch hẹn hôm nay
                     </p>
                     <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-                      4 việc
+                      {isLoadingAppointment
+                        ? "..."
+                        : `${appointments.length} việc`}
                     </span>
                   </div>
                   <div className="grid gap-3">
-                    <div className="rounded-3xl border border-slate-200 bg-white p-4">
-                      <p className="text-sm text-slate-500">08:00 - Bs. Linh</p>
-                      <p className="mt-1 font-medium text-slate-900">
-                        Khám tổng quát
-                      </p>
-                    </div>
-                    <div className="rounded-3xl border border-slate-200 bg-white p-4">
-                      <p className="text-sm text-slate-500">09:30 - Bs. Hùng</p>
-                      <p className="mt-1 font-medium text-slate-900">
-                        Tái khám
-                      </p>
-                    </div>
+                    {isLoadingAppointment ? (
+                      <>
+                        {[...Array(2)].map((_, index) => (
+                          <div
+                            key={index}
+                            className="rounded-3xl border border-slate-200 bg-white p-4"
+                          >
+                            <Skeleton
+                              active
+                              paragraph={{ rows: 2 }}
+                              title={false}
+                            />
+                          </div>
+                        ))}
+                      </>
+                    ) : appointments.length > 0 ? (
+                      appointments.map((item) => (
+                        <div
+                          key={item.appointment_id}
+                          className="rounded-3xl border border-slate-200 bg-white p-4"
+                        >
+                          <p className="text-sm text-slate-500">
+                            {dayjs(item.start_time).format("HH:mm")} -{" "}
+                            {item.profiles?.fullname ?? "Bs. chưa có"}
+                          </p>
+                          <p className="mt-1 font-medium text-slate-900">
+                            {item.reason || "Lịch khám"}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-3xl border border-slate-200 bg-white p-4">
+                        <p className="text-sm text-slate-500">
+                          Không có lịch hẹn hôm nay
+                        </p>
+                        <p className="mt-1 font-medium text-slate-900">
+                          Bạn có thể thêm lịch mới.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">

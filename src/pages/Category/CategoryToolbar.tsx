@@ -1,5 +1,5 @@
 import { Input } from "antd";
-import { TagIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 import { SearchOutlined } from "@ant-design/icons";
 
 type Props = {
@@ -28,7 +28,7 @@ export const CategoryToolbar = (props: Props) => {
       <button className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 transition py-3.5 px-3 rounded-xl cursor-pointer"
         onClick={() => onShowAddModal()}
       >
-        <TagIcon className="text-white" size={18} />
+        <PlusIcon className="text-white" size={18} />
         <p className="hidden md:block text-white">Thêm danh mục</p>
       </button>
     </div>
