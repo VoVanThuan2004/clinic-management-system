@@ -97,7 +97,17 @@ export const MedicineModal = (props: Props) => {
       props: {
         min: 0,
       },
-      rules: [{ required: true, message: "Vui lòng nhập giá nhập!" }],
+      rules: [
+        { required: true, message: "Vui lòng nhập giá nhập!" },
+        {
+          validator: (_: any, value: any) => {
+            if (value == null || value >= 0) {
+              return Promise.resolve();
+            }
+            return Promise.reject("Giá nhập không được âm!");
+          },
+        },
+      ],
     },
 
     {
@@ -108,7 +118,17 @@ export const MedicineModal = (props: Props) => {
       props: {
         min: 0,
       },
-      rules: [{ required: true, message: "Vui lòng nhập giá bán!" }],
+      rules: [
+        { required: true, message: "Vui lòng nhập giá bán!" },
+        {
+          validator: (_: any, value: any) => {
+            if (value == null || value >= 0) {
+              return Promise.resolve();
+            }
+            return Promise.reject("Giá bán không được âm!");
+          },
+        },
+      ],
     },
 
     {
@@ -119,7 +139,17 @@ export const MedicineModal = (props: Props) => {
       props: {
         min: 0,
       },
-      rules: [{ required: true, message: "Vui lòng nhập tồn kho!" }],
+      rules: [
+        { required: true, message: "Vui lòng nhập tồn kho!" },
+        {
+          validator: (_: any, value: any) => {
+            if (value == null || value >= 0) {
+              return Promise.resolve();
+            }
+            return Promise.reject("Tồn kho không được âm!");
+          },
+        },
+      ],
     },
 
     {

@@ -40,13 +40,19 @@ export const RevenueChart = ({
   }
 
   return (
-    <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm mt-5">
+    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mt-5">
       <h3 className="text-lg font-semibold text-gray-700 mb-4">Doanh thu</h3>
 
-      <ResponsiveContainer height={500} style={{
-        paddingLeft: 10
-      }}>
-        <BarChart data={data}>
+      <ResponsiveContainer
+        height={500}
+        style={{
+          paddingLeft: 10,
+        }}
+      >
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 20, left: 40, bottom: 20 }}
+        >
           {/* Grid */}
           <CartesianGrid strokeDasharray="4 3" />
 
@@ -58,7 +64,12 @@ export const RevenueChart = ({
 
           {/* Tooltip */}
           <Tooltip
-            formatter={(value) => `${Number(value).toLocaleString()} đ`}
+            formatter={(value, name) => {
+              if (name === "revenue") {
+                return [`${Number(value).toLocaleString()} đ`, "Doanh thu"];
+              }
+              return [value, name];
+            }}
           />
 
           {/* Bar */}
