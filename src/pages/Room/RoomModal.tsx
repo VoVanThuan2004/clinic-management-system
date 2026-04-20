@@ -48,11 +48,16 @@ export const RoomModal = (props: Props) => {
     },
   ];
 
+  const onCloseModal = () => {
+    onClose();
+    form.resetFields();
+  }
+
   return (
     <AppModal
       title={title}
       open={isOpen}
-      onClose={onClose}
+      onClose={onCloseModal}
       okText={okText}
       cancelText={cancelText}
       onOk={() => form.submit()}

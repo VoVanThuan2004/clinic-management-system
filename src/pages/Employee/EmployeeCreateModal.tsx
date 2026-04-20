@@ -48,7 +48,13 @@ export const EmployeeCreateModal = (props: Props) => {
       label: "Email",
       type: "input",
       placeholder: "Nhập email",
-      rules: [{ required: true, message: "Vui lòng nhập email!" }],
+      rules: [
+        { required: true, message: "Vui lòng nhập email!" },
+        {
+          pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+          message: "Email không hợp lệ!",
+        },
+      ],
     },
     {
       name: "fullname",

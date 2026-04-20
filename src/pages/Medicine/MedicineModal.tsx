@@ -35,13 +35,19 @@ export const MedicineModal = (props: Props) => {
   const [debouncedSearch] = useDebounce(searchCategory, 500);
 
   useEffect(() => {
-    if (isOpen && initialValues) {
-      form.setFieldsValue({
-        ...initialValues,
-        image: convertImageToFileList(initialValues.image),
-      });
+    if (isOpen) {
+      if (initialValues) {
+        // Update mode: set form values with current image
+        form.setFieldsValue({
+          ...initialValues,
+          image: convertImageToFileList(initialValues.image),
+        });
+      } else {
+        // Create mode: reset form
+        form.resetFields();
+      }
     }
-  }, [isOpen, initialValues]);
+  }, [isOpen, initialValues, form]);
 
   // Gọi hook api lấy danh sách categories option
   const { categories } = useCategoriesOption({
@@ -170,8 +176,29 @@ export const MedicineModal = (props: Props) => {
       props: {
         listType: "picture-card",
         maxCount: 1,
+        accept: "image/*",
       },
-      rules: [{ required: true, message: "Vui lòng tải ảnh!" }],
+      rules: [
+        { required: true, message: "Vui lòng tải ảnh!" },
+        {
+          validator: (_: any, fileList: any) => {
+            if (!fileList || fileList.length === 0) {
+              return Promise.resolve();
+            }
+            const file = fileList[0];
+            // Nếu là file từ URL (update mode), không cần validate
+            if (file.url && !file.originFileObj) {
+              return Promise.resolve();
+            }
+            // Nếu là file mới upload, kiểm tra loại file
+            const isImage = file.type && file.type.startsWith("image/");
+            if (isImage) {
+              return Promise.resolve();
+            }
+            return Promise.reject(new Error("Chỉ chấp nhận file ảnh!"));
+          },
+        },
+      ],
     },
   ];
 
