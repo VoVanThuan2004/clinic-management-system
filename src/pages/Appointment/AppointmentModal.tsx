@@ -156,6 +156,15 @@ export const AppointmentModal = (props: Props) => {
   const onCloseAppointmentModal = () => {
     onClose();
     setSelectedSlot(null);
+    setSelectedPatient(null);
+    setSelectedDoctor(null);
+    setSelectedRoom(null);
+    setSelectedDate(null);
+    setSelectedMedicalService(null);
+    setDurationMinutes(undefined);
+    setSearchPatient("");
+    setSearchDoctor("");
+    form.resetFields();
   };
 
   // Hàm cập nhật appointment

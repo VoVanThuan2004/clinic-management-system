@@ -6,6 +6,7 @@ import { useCategoriesOption } from "../../hooks/category/useCategoriesOption";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { convertImageToFileList } from "../../utils/convertImageToFileList";
+import { message, Upload } from "antd";
 
 type Props = {
   title: string;
@@ -177,28 +178,21 @@ export const MedicineModal = (props: Props) => {
         listType: "picture-card",
         maxCount: 1,
         accept: "image/*",
-      },
-      rules: [
-        { required: true, message: "Vui lòng tải ảnh!" },
-        {
-          validator: (_: any, fileList: any) => {
-            if (!fileList || fileList.length === 0) {
-              return Promise.resolve();
-            }
-            const file = fileList[0];
-            // Nếu là file từ URL (update mode), không cần validate
-            if (file.url && !file.originFileObj) {
-              return Promise.resolve();
-            }
-            // Nếu là file mới upload, kiểm tra loại file
-            const isImage = file.type && file.type.startsWith("image/");
-            if (isImage) {
-              return Promise.resolve();
-            }
-            return Promise.reject(new Error("Chỉ chấp nhận file ảnh!"));
-          },
+
+        beforeUpload: (file: any) => {
+          const isImage =
+            file.type?.startsWith("image/") ||
+            /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+
+          if (!isImage) {
+            message.error("Chỉ được upload file ảnh!");
+            return Upload.LIST_IGNORE;
+          }
+
+          return false;
         },
-      ],
+      },
+      rules: [{ required: true, message: "Vui lòng tải ảnh!" }],
     },
   ];
 

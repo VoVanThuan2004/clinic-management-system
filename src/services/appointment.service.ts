@@ -33,7 +33,8 @@ export const getAppointmentsCalendar = async (
     .eq("doctor_id", doctor_id)
     .gte("start_time", start_time)
     .lte("start_time", end_time)
-    .neq("status", "cancelled");
+    .neq("status", "cancelled")
+    .order("created_at", { ascending: true });
 
   const res = await query;
 
@@ -282,7 +283,7 @@ export const updateAppointment = async (props: AppointmentUpdate) => {
     reason,
     service_id,
     room_id,
-    duration_minutes
+    duration_minutes,
   } = props;
 
   return await supabase
@@ -294,7 +295,7 @@ export const updateAppointment = async (props: AppointmentUpdate) => {
       reason,
       service_id,
       room_id,
-      duration_minutes
+      duration_minutes,
     })
     .eq("appointment_id", appointment_id);
 };
