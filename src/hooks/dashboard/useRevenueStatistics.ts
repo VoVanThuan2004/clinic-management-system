@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { revenueStatistics } from "../../services/dashboard.service";
+import { profitStatistics, revenueStatistics } from "../../services/dashboard.service";
 import type { GroupBy } from "../../types/dashboard.type";
 import { formatLabel } from "../../utils/formatLabel";
 
@@ -20,17 +20,28 @@ export const useRevenueStatistics = (props: Props) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const res = await revenueStatistics({
-          startDate,
-          endDate,
-          groupBy,
-        });
+        const [revenueRes, profitRes] = await Promise.all([
+          revenueStatistics({ startDate, endDate, groupBy }),
+          profitStatistics({ startDate, endDate, groupBy }),
+        ]);
 
-        // Format cho chart
-        const formatted = res.map((item: any) => ({
-          label: formatLabel(item.label, groupBy),
-          revenue: Number(item.revenue),
-        }));
+        // Convert về map để lookup nhanh
+        const profitMap = new Map(
+          profitRes.map((item: any) => [
+            formatLabel(item.period, groupBy),
+            Number(item.profit),
+          ])
+        );
+
+        const formatted = revenueRes.map((item: any) => {
+          const label = formatLabel(item.label, groupBy);
+
+          return {
+            label,
+            revenue: Number(item.revenue),
+            profit: profitMap.get(label) || 0,
+          };
+        });
 
         setData(formatted);
       } catch (error) {
@@ -43,5 +54,5 @@ export const useRevenueStatistics = (props: Props) => {
     fetchData();
   }, [startDate, endDate, groupBy]);
 
-  return { isLoading, data }
+  return { isLoading, data };
 };

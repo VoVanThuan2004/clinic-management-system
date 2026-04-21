@@ -39,6 +39,20 @@ export const revenueStatistics = async (params: RevenueParams) => {
     return data;
 }
 
+export const profitStatistics = async (params: RevenueParams) => {
+  const { startDate, endDate, groupBy } = params;
+
+  const { data, error } = await supabase.rpc("get_profit_stats", {
+    start_date: startDate,
+    end_date: endDate,
+    group_by: groupBy,
+  });
+
+  if (error) throw error;
+
+  return data;
+};
+
 export const getTopMedicines = async (startDate: string, endDate: string) => {
   const { data, error } = await supabase.rpc("get_top_medicines", {
     start_date: startDate,
