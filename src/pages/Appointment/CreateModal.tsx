@@ -14,6 +14,10 @@ import { AppModal } from "../../components/AppModal";
 import { useRoomOption } from "../../hooks/room/useRoomOption";
 import { useAvailableSlots } from "../../hooks/appointment/useAvailableSlots";
 import { useAuthStore } from "../../stores/useAuthStore";
+import { patientFields } from "../Patient/schemas/patient.form";
+import { useAddPatient } from "../../hooks/useAddPatient";
+import { ModalForm } from "../../components/ModalForm";
+import { generatePatientCode } from "../../utils/generatePatientCode";
 const { TextArea } = Input;
 
 type Props = {
@@ -28,6 +32,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
   const [searchPatient, setSearchPatient] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [debounceSearchPatient] = useDebounce(searchPatient, 500);
+  const [isShowNewPatientForm, setIsShowNewPatientForm] = useState(false);
 
   // State quản lý chọn bác sĩ
   const [searchDoctor, setSearchDoctor] = useState("");
@@ -48,7 +53,6 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
 
   // State quản lý chọn thời lượng khám
   const [durationMinutes, setDurationMinutes] = useState<number>();
-
 
   // ==== ====
 
@@ -72,11 +76,16 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
     date: selectedDate || "",
     duration: durationMinutes as number,
   });
-  const displaySlots = (selectedDoctor && selectedRoom && selectedDate && durationMinutes) ? slots : [];
-
+  const displaySlots =
+    selectedDoctor && selectedRoom && selectedDate && durationMinutes
+      ? slots
+      : [];
 
   // Gọi hook api tạo lịch hẹn
   const useCreateAppointmentMutation = useCreateAppointment();
+
+  // Gọi hook api tạo bệnh nhân
+  const useAddPatientMutation = useAddPatient();
 
   // Gọi hook api lấy danh sách phòng khám
   const { rooms } = useRoomOption();
@@ -90,7 +99,6 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
 
       console.log("Appointments: ", values);
       console.log("Duration minutes: ", durationMinutes);
-      
 
       // Kiểm tra đã chọn slot thời gian khám chưa
       if (!selectedSlot) {
@@ -132,7 +140,6 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
     }
   };
 
-
   // mapping data trả về dạng label - value cho bệnh nhân
   const options = data.map((item) => ({
     label: `${item.full_name} - ${item.phone_number}`,
@@ -166,8 +173,36 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
     setSelectedSlot(null);
     setSelectedMedicalService(null);
     setDurationMinutes(undefined);
+    setIsShowNewPatientForm(false);
     form.resetFields();
     onClose();
+  };
+
+  const handleAddPatient = (values: any) => {
+    // Tạo mã code bệnh nhân
+    const patient_code = generatePatientCode();
+
+    const formattedValues = {
+      ...values,
+      date_of_birth: values.date_of_birth
+        ? values.date_of_birth.format("YYYY-MM-DD")
+        : null,
+    };
+
+    useAddPatientMutation.mutate(
+      {
+        patient_code,
+        ...formattedValues,
+      },
+      {
+        onSuccess: () => {
+          message.success("Thêm bệnh nhân mới thành công!");
+          setIsShowNewPatientForm(false);
+          // Reset search to show newly created patient in the list
+          setSearchPatient("");
+        },
+      },
+    );
   };
 
   // === Content của modal ===
@@ -177,9 +212,21 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
       <div className="w-1/2 flex flex-col gap-4">
         <Form form={form} layout="vertical" onFinish={handleCreate}>
           {/* Chọn bệnh nhân */}
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-gray-700">
+              Chọn bệnh nhân
+            </label>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => setIsShowNewPatientForm(true)}
+              className="!p-0 !h-auto"
+            >
+              + Thêm bệnh nhân mới
+            </Button>
+          </div>
           <Form.Item
             name="patient"
-            label="Chọn bệnh nhân"
             rules={[{ required: true, message: "Vui lòng chọn bệnh nhân!" }]}
           >
             <Select
@@ -416,27 +463,39 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
   console.log("Phòng khám: ", selectedRoom);
 
   return (
-    <AppModal
-      title={"Tạo lịch hẹn"}
-      open={isOpen}
-      onClose={handleClose}
-      width={1000}
-      okText="Cập nhật"
-      footer={[
-        <Button key="back" onClick={handleClose}>
-          Hủy
-        </Button>,
-        <Button
-          key="submit"
-          type="primary"
-          onClick={handleCreate}
-          loading={useCreateAppointmentMutation.isPending}
-        >
-          Tạo lịch hẹn
-        </Button>,
-      ]}
-    >
-      {content}
-    </AppModal>
+    <>
+      <AppModal
+        title={"Tạo lịch hẹn"}
+        open={isOpen}
+        onClose={handleClose}
+        width={1000}
+        okText="Cập nhật"
+        footer={[
+          <Button key="back" onClick={handleClose}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={handleCreate}
+            loading={useCreateAppointmentMutation.isPending}
+          >
+            Tạo lịch hẹn
+          </Button>,
+        ]}
+      >
+        {content}
+
+        <ModalForm
+          type="add"
+          open={isShowNewPatientForm}
+          onClose={() => setIsShowNewPatientForm(false)}
+          onSubmit={handleAddPatient}
+          isConfirmLoading={useAddPatientMutation.isPending}
+          title="Thêm bệnh nhân mới"
+          fields={patientFields}
+        />
+      </AppModal>
+    </>
   );
 };
