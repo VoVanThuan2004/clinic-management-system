@@ -32,8 +32,8 @@ export const ModalForm = ({
     if (open) {
       form.setFieldsValue({
         ...initialValues,
-        date_of_birth: initialValues?.date_of_birth
-          ? dayjs(initialValues.date_of_birth)
+        dateOfBirth: initialValues?.dateOfBirth
+          ? dayjs(initialValues.dateOfBirth)
           : null,
       });
     } else {

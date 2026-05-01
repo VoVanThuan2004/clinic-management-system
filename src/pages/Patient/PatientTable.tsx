@@ -50,18 +50,19 @@ export const PatientTable = ({
   const showUpdateModal = (patient: Patient) => {
     setIsUpdateOpen(true);
     setPatientUpdate(patient);
-    setPatientId(patient.id);
+    setPatientId(patient.patientId);
   };
 
   const handleUpdate = (values: PatientUpdate) => {
     const formattedValues = {
       ...values,
-      date_of_birth: values.date_of_birth
-        ? dayjs(values.date_of_birth).format("YYYY-MM-DD")
+      dateOfBirth: values.dateOfBirth
+        ? dayjs(values.dateOfBirth).format("YYYY-MM-DD")
         : "",
     };
 
     if (!values) return;
+
     useUpdatePatientMutate.mutate(
       {
         patientId: patientId,
@@ -69,7 +70,7 @@ export const PatientTable = ({
       },
       {
         onSuccess: () => {
-          message.success("Cập nhật bệnh nhân thành công");
+          message.success(useUpdatePatientMutate.data?.message);
           setIsUpdateOpen(false);
         },
       },

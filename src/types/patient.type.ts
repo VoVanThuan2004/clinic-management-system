@@ -30,10 +30,10 @@ export type Patient = {
 };
 
 export type PatientUpdate = {
-  full_name: string;
-  date_of_birth: string;
+  fullName: string;
+  dateOfBirth: string;
   gender: number;
-  phone_number: string;
+  phoneNumber: string;
   address: string;
 };
 

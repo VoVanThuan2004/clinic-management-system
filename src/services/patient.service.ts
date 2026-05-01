@@ -57,16 +57,12 @@ export const updatePatientApi = async ({
   patientId: string;
   patientUpdate: PatientUpdate;
 }) => {
-  return await supabase
-    .from("patients")
-    .update({
-      full_name: patientUpdate.full_name,
-      gender: patientUpdate.gender,
-      phone_number: patientUpdate.phone_number,
-      address: patientUpdate.address,
-      date_of_birth: patientUpdate.date_of_birth,
-    })
-    .eq("id", patientId);
+  const res = await axiosClient.put<ApiResponse>(
+    `/v1/patients/${patientId}`,
+    patientUpdate
+
+  );
+  return res.data;
 };
 
 // API xóa nhiều bệnh nhân

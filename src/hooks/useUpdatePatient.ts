@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { PatientUpdate } from "../types/patient.type";
 import { updatePatientApi } from "../services/patient.service";
-import { message } from "antd";
 
 type Props = {
   patientId: string;
@@ -14,11 +13,6 @@ export const useUpdatePatient = () => {
     mutationFn: (props: Props) => updatePatientApi(props),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["patients"] });
-    },
-    onError: (error) => {
-      console.log(error);
-      
-      message.error("Lỗi khi cập nhật bệnh nhân");
     },
   });
 };
