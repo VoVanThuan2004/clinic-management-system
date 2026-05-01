@@ -5,7 +5,7 @@ export const DoctorRoute = () => {
   const roleName = useAuthStore((state) => state.user?.roleName);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  if (!isAuthenticated || roleName !== "doctor") {
+  if (!isAuthenticated || roleName !== "DOCTOR") {
     return <Navigate to={"/login"} replace />;
   }
   return <Outlet />;

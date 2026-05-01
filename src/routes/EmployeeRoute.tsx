@@ -5,7 +5,7 @@ export const EmployeeRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const roleName = useAuthStore((state) => state.user?.roleName);
 
-  if (!isAuthenticated || roleName !== "employee") {
+  if (!isAuthenticated || roleName !== "EMPLOYEE") {
     return <Navigate to={"/login"} replace />;
   }
 

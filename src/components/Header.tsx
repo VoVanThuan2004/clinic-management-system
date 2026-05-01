@@ -3,11 +3,12 @@ import avatarTest from "../assets/react.svg";
 import { useAuthStore } from "../stores/useAuthStore";
 import { Dropdown, type MenuProps } from "antd";
 import { Menu } from "lucide-react";
+import { logoutApi } from "../services/auth.service";
 
 // function xác định navlink url tương ứng của từng role, hiển thị tiêu đề
 const getHeaderTitleByRole = (roleName: string) => {
   const url = window.location.pathname;
-  if (roleName === "employee") {
+  if (roleName === "EMPLOYEE") {
     if (url.includes("/employee/patients")) {
       return "Quản lý bệnh nhân";
     }
@@ -17,7 +18,7 @@ const getHeaderTitleByRole = (roleName: string) => {
     if (url.includes("/employee/medical-records")) {
       return "Quản lý hồ sơ khám";
     }
-  } else if (roleName === "doctor") {
+  } else if (roleName === "DOCTOR") {
     if (url.includes("/doctor/appointments")) {
       return "Quản lý lịch khám";
     }
@@ -28,21 +29,21 @@ const getHeaderTitleByRole = (roleName: string) => {
 };
 
 const getUrlProfileByRole = (roleName: string) => {
-  if (roleName === "employee") {
+  if (roleName === "EMPLOYEE") {
     return "/employee/profile";
-  } else if (roleName === "doctor") {
+  } else if (roleName === "DOCTOR") {
     return "/doctor/profile";
-  } else if (roleName === "admin") {
+  } else if (roleName === "ADMIN") {
     return "/admin/profile";
   }
 };
 
 const getUrlChangePasswordByRole = (roleName: string) => {
-  if (roleName === "employee") {
+  if (roleName === "EMPLOYEE") {
     return "/employee/change-password";
-  } else if (roleName === "doctor") {
+  } else if (roleName === "DOCTOR") {
     return "/doctor/change-password";
-  } else if (roleName === "admin") {
+  } else if (roleName === "ADMIN") {
     return "/admin/change-password";
   }
 };
@@ -63,9 +64,18 @@ export const Header = (props: Props) => {
   );
 
   // Đăng xuất
-  const handleLogout = () => {
-    clearSession();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      const res = await logoutApi();
+
+      if (res.status === "success") {
+        navigate("/login");
+        clearSession();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    
   };
 
   const items: MenuProps["items"] = [
@@ -116,11 +126,11 @@ export const Header = (props: Props) => {
               {user?.fullName}
             </span>
             <span className="text-xs text-gray-500">
-              {user?.roleName === "employee" && "Nhân viên"}
+              {user?.roleName === "EMPLOYEE" && "Nhân viên"}
 
-              {user?.roleName === "doctor" && "Bác sĩ"}
+              {user?.roleName === "DOCTOR" && "Bác sĩ"}
 
-              {user?.roleName === "admin" && "Quản trị viên"}
+              {user?.roleName === "ADMIN" && "Quản trị viên"}
             </span>
           </div>
 

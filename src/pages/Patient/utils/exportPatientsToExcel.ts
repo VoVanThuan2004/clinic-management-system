@@ -6,18 +6,18 @@ export const exportPatientsToExcel = (patients: Patient[]) => {
   if (!patients || patients.length === 0) return;
 
   const data = patients.map((p) => ({
-    "Mã BN": p.patient_code,
-    "Họ tên": p.full_name,
-    "Ngày sinh": formatDate(p.date_of_birth),
+    "Mã BN": p.patientCode,
+    "Họ tên": p.fullName,
+    "Ngày sinh": formatDate(p.dateOfBirth),
     "Giới tính": p.gender === 1 ? "Nam" : "Nữ",
-    SĐT: p.phone_number,
+    SĐT: p.phoneNumber,
     "Địa chỉ": p.address,
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(data);
     // set width cho từng cột
   worksheet["!cols"] = [
-    { wch: 12 }, // Mã BN
+    { wch: 20 }, // Mã BN
     { wch: 25 }, // Họ tên
     { wch: 15 }, // Ngày sinh
     { wch: 10 }, // Giới tính

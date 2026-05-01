@@ -1,4 +1,7 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
+import type { ApiResponse } from "../types/api.response";
+import type { ChangePasswordDTO, LoginSuccessData } from "../types/auth.type";
 
 export const changePasswordWithVerify = async ({
   email,
@@ -42,6 +45,45 @@ export const loginApi = async ({
     email,
     password,
   });
+};
+
+export const loginApiV2 = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  const res = await axiosClient.post<ApiResponse<LoginSuccessData>>(
+    "/v1/auth/login",
+    {
+      email,
+      password,
+    },
+    {
+      withCredentials: true, // Gửi kèm cookie
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  return res.data;
+};
+
+export const logoutApi = async () => {
+  const res = await axiosClient.post<ApiResponse>(
+    "/v1/auth/v2/logout",
+    {},
+    {
+      withCredentials: true, // Gửi kèm cookie
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  return res.data;
 };
 
 export const getRoleByName = async (name: string) => {
@@ -101,3 +143,8 @@ export const changePassword = async (password: string) => {
 
   if (error) throw error;
 };
+
+export const changePasswordApi = async (changePasswordDTO: ChangePasswordDTO) => {
+  const res = await axiosClient.post<ApiResponse>("/v1/auth/change-password", changePasswordDTO);
+  return res.data;
+}

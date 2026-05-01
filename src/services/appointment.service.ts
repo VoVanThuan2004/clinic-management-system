@@ -175,7 +175,6 @@ export const getBookedSlotsApi = async ({
 
   const { data, error } = await supabase
     .from("appointments")
-    // LƯU Ý: Xóa khoảng trắng sau dấu phẩy trong chuỗi select
     .select<"start_time,duration_minutes", BookedData>(
       "start_time,duration_minutes",
     )
@@ -186,7 +185,7 @@ export const getBookedSlotsApi = async ({
 
   // 3. LOG RA LỖI CHI TIẾT NẾU BỊ 400
   if (error) {
-    console.error("🔥 Lỗi chi tiết từ Supabase:", {
+    console.error("Lỗi chi tiết từ Supabase:", {
       message: error.message,
       details: error.details,
       hint: error.hint,

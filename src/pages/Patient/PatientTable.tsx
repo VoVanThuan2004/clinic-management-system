@@ -31,15 +31,16 @@ export const PatientTable = ({
   const navigate = useNavigate();
 
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
 
   const { data, isLoading } = usePatients({
     page: pagination.current,
     pageSize: pagination.pageSize,
-    search: debounceSearch,
+    search: debounceSearch || "",
   });
+  const patients = data?.data?.content || [];
 
   const useDeletePatientMutate = useDeletePatient();
 
@@ -76,6 +77,7 @@ export const PatientTable = ({
   };
 
   const handleDelete = async (id: string) => {
+    if (!id) return;
     useDeletePatientMutate.mutate(id);
   };
 
@@ -115,20 +117,20 @@ export const PatientTable = ({
           isLoadingDelete
         }
         columns={columns}
-        dataSource={data?.data || []}
-        rowKey={"id"}
+        dataSource={patients}
+        rowKey={"patientId"}
         rowSelection={rowSelection}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
-          total: data?.count || 0,
+          total: data?.data?.totalElements || 0,
 
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
 
           onChange: (page, pageSize) => {
             setPagination({
-              current: page,
+              current: page - 1,
               pageSize: pageSize,
             });
           },

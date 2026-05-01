@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { message } from "antd";
 import { deletePatientApi } from "../services/patient.service";
 
 export const useDeletePatient = () => {
@@ -10,8 +9,6 @@ export const useDeletePatient = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["patients"] });
     },
-    onError: () => {
-      message.error("Lỗi khi xóa bệnh nhân");
-    },
+    
   });
 };

@@ -11,21 +11,21 @@ type Props = {
 export const getPatientColumns = ({ onEdit, onDelete, onViewPatientHistory }: Props) => [
   {
     title: "Mã BN",
-    dataIndex: "patient_code",
-    key: "patient_code",
+    dataIndex: "patientCode",
+    key: "patientCode",
     render: (id: number) => (
       <span className="text-blue-600 font-medium">{id}</span>
     ),
   },
   {
     title: "Họ tên",
-    dataIndex: "full_name",
-    key: "full_name",
+    dataIndex: "fullName",
+    key: "fullName",
   },
   {
     title: "Ngày sinh",
-    dataIndex: "date_of_birth",
-    key: "date_of_birth",
+    dataIndex: "dateOfBirth",
+    key: "dateOfBirth",
     render: (date: string) => <p>{formatDate(date)}</p>,
   },
   {
@@ -36,8 +36,8 @@ export const getPatientColumns = ({ onEdit, onDelete, onViewPatientHistory }: Pr
   },
   {
     title: "SĐT",
-    dataIndex: "phone_number",
-    key: "phone_number",
+    dataIndex: "phoneNumber",
+    key: "phoneNumber",
   },
   {
     title: "Địa chỉ",
@@ -62,7 +62,7 @@ export const getPatientColumns = ({ onEdit, onDelete, onViewPatientHistory }: Pr
         <Popconfirm
           title="Xóa bệnh nhân"
           description="Bạn có chắc chắn muốn xóa bệnh nhân này?"
-          onConfirm={() => onDelete(record.id)}
+          onConfirm={() => onDelete(record.patientId)}
           okText="Xóa"
           cancelText="Hủy"
         >

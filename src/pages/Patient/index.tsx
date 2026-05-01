@@ -5,7 +5,6 @@ import { AddPatientModal } from "./AddPatientModal";
 import { PatientTable } from "./PatientTable";
 import { useDebounce } from "use-debounce";
 import { useDeletePatients } from "../../hooks/useDeletePatients";
-import { getPatientMedicalHistory } from "../../services/patient.service";
 import { useAuthStore } from "../../stores/useAuthStore";
 const { Search } = Input;
 
@@ -24,8 +23,8 @@ export const PatientPage = () => {
   // Gọi hook api xóa danh sách bệnh nhân
   const useDeletePatientsMutate = useDeletePatients();
 
-  const data = getPatientMedicalHistory("6aa42062-befd-4eff-b861-6bb390d3c86e");
-  console.log(data);
+  // const data = getPatientMedicalHistory("6aa42062-befd-4eff-b861-6bb390d3c86e");
+  // console.log(data);
   
   
   const handleBulkDelete = () => {
@@ -43,7 +42,7 @@ export const PatientPage = () => {
   return (
     <div className="px-5 mt-5">
       {/* Nút thêm mới, import, export */}
-      <PatientToolbar onAdd={() => setIsAddOpen(true)} />
+      <PatientToolbar onAdd={() => setIsAddOpen(true)} debounceSearch={debouncedSearchText}/>
 
       {/* Nút search  */}
       <Search

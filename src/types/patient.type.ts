@@ -3,11 +3,10 @@ import type { Prescription } from "./prescription.type";
 
 // Data chuẩn để insert DB
 export type PatientInsert = {
-  patient_code: string;
-  full_name: string;
-  date_of_birth: string | null; // YYYY-MM-DD
+  fullName: string;
+  dateOfBirth: string | null;
   gender: number;
-  phone_number: string;
+  phoneNumber: string;
   address: string;
 }
 
@@ -21,12 +20,12 @@ export type PatientExcelRow = {
 }
 
 export type Patient = {
-  id: string;
-  patient_code: string;
-  full_name: string;
-  date_of_birth: string;
+  patientId: string;
+  patientCode: string;
+  fullName: string;
+  dateOfBirth: string;
   gender: number;
-  phone_number: string;
+  phoneNumber: string;
   address: string;
 };
 

@@ -1,5 +1,4 @@
 import { ModalForm } from "../../components/ModalForm";
-import { generatePatientCode } from "../../utils/generatePatientCode";
 import { useAddPatient } from "../../hooks/useAddPatient";
 import { patientFields } from "./schemas/patient.form";
 import { message } from "antd";
@@ -14,25 +13,21 @@ export const AddPatientModal = (props: Props) => {
   const useAddPatientMutate = useAddPatient();
 
   const onSubmit = (values: any) => {
-    // Tạo mã code bệnh nhân
-    const patient_code = generatePatientCode();
-
     const formattedValues = {
       ...values,
-      date_of_birth: values.date_of_birth 
-        ? values.date_of_birth.format("YYYY-MM-DD") 
+      dateOfBirth: values.dateOfBirth
+        ? values.dateOfBirth.format("YYYY-MM-DD")
         : null,
     };
 
     // Gọi hàm mutate để thêm bệnh nhân
     useAddPatientMutate.mutate(
       {
-        patient_code,
         ...formattedValues,
       },
       {
         onSuccess: () => {
-          message.success("Thêm bệnh nhân thành công");
+          message.success(useAddPatientMutate.data?.message);
           props.onClose();
         },
       },

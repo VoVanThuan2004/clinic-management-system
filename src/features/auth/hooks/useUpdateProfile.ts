@@ -11,8 +11,5 @@ export const useUpdateProfile = () => {
       // Sau khi cập nhật profile thành công, invalidate query profile để refetch lại data mới nhất
       queryClient.invalidateQueries({ queryKey: ["profile"]});
     },
-    onError: (error) => {
-      console.error("Failed to update profile:", error);
-    }
   })
 }

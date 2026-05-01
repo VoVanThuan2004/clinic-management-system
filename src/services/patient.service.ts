@@ -1,23 +1,27 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
-import type { PatientHistory, PatientInsert, PatientUpdate } from "../types/patient.type";
+import type { ApiResponse, PageResponse } from "../types/api.response";
+import type {
+  Patient,
+  PatientHistory,
+  PatientInsert,
+  PatientUpdate,
+} from "../types/patient.type";
 
 // Thêm bệnh nhân
 export const addPatientApi = async (patient: PatientInsert) => {
-  const { error } = await supabase.from("patients").insert(patient);
+  const res = await axiosClient.post<ApiResponse>("/v1/patients", patient);
 
-  if (error) {
-    if (error.code === "23505") {
-      throw new Error("PHONE_EXISTS");
-    }
-
-    throw error;
-  }
+  return res.data;
 };
 
 // Thêm danh sách bệnh nhân - import file excel
 export const addPatientsApi = async (patients: PatientInsert[]) => {
-  const { error } = await supabase.from("patients").insert(patients);
-  if (error) throw error;
+  const res = await axiosClient.post<ApiResponse>(
+    "/v1/patients/import",
+    patients,
+  );
+  return res.data;
 };
 
 export const getPatientsApi = async (params: {
@@ -27,34 +31,23 @@ export const getPatientsApi = async (params: {
 }) => {
   const { page, pageSize, search } = params;
 
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
+  const res = await axiosClient<ApiResponse<PageResponse>>(
+    `/v1/patients?page=${page}&size=${pageSize}&search=${search}`,
+  );
 
-  let query = supabase
-    .from("patients")
-    .select("*", { count: "exact" })
-    .range(from, to)
-    .order("created_at", { ascending: false });
-
-  // Nếu có nội dung tìm kiếm
-  if (search) {
-    query = query.or(
-      `full_name.ilike.%${search}%,phone_number.ilike.%${search}%`,
-    );
-  }
-
-  return await query;
+  return res.data;
 };
 
-export const getAllPatientsApi = async () => {
-  return await supabase
-    .from("patients")
-    .select("*")
-    .order("created_at", { ascending: false });
+export const getAllPatientsExportApi = async (search: string) => {
+  const res = await axiosClient.get<ApiResponse<Patient[]>>(
+    `/v1/patients/export?search=${search}`,
+  );
+  return res.data;
 };
 
 export const deletePatientApi = async (id: string) => {
-  return await supabase.from("patients").delete().eq("id", id);
+  const res = await axiosClient.delete(`/v1/patients/${id}`);
+  return res.data;
 };
 
 export const updatePatientApi = async ({
@@ -78,7 +71,11 @@ export const updatePatientApi = async ({
 
 // API xóa nhiều bệnh nhân
 export const deletePatientsApi = async (patientIds: string[]) => {
-  return await supabase.from("patients").delete().in("id", patientIds);
+  const res = await axiosClient.delete("/v1/patients", {
+    data: patientIds,
+  });
+
+  return res.data;
 };
 
 export const selectPatientApi = async (params: { search?: string }) => {
@@ -142,6 +139,5 @@ export const getPatientMedicalHistory = async (patientId: string) => {
 
   return data as unknown as PatientHistory[];
 };
-
 
 // Lấy tổng số bệnh nhân hôm nay

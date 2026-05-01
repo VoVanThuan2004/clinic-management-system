@@ -9,7 +9,7 @@ export type SidebarItem = {
 };
 
 export const sidebarConfig: Record<string, SidebarItem[]> = {
-  employee: [
+  EMPLOYEE: [
     {
       key: "patients",
       to: "/employee/patients",
@@ -30,7 +30,7 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
     },
   ],
 
-  doctor: [
+  DOCTOR: [
     {
       key: "appointments",
       to: "/doctor/appointments",
@@ -45,7 +45,7 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
     },
   ],
 
-  admin: [
+  ADMIN: [
     {
       key: "users",
       label: "Quản lý người dùng",

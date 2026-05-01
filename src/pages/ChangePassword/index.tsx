@@ -4,19 +4,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import z from "zod";
-import { changePasswordWithVerify } from "../../services/auth.service";
-import { supabase } from "../../lib/supabase";
+import {
+  changePasswordApi,
+} from "../../services/auth.service";
 import { Eye, EyeOff } from "lucide-react";
 
 const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
-
     newPassword: z.string().min(8, "Mật khẩu mới phải có ít nhất 8 ký tự"),
-    //   .regex(/[A-Z]/, "Mật khẩu mới phải có ít nhất 1 chữ hoa")
-    //   .regex(/[a-z]/, "Mật khẩu mới phải có ít nhất 1 chữ thường")
-    //   .regex(/[0-9]/, "Mật khẩu mới phải có ít nhất 1 số"),
-
     confirmNewPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu mới"),
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
@@ -40,7 +36,7 @@ export const ChangePasswordPage = () => {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = useForm({
     resolver: zodResolver(changePasswordSchema),
   });
@@ -48,27 +44,19 @@ export const ChangePasswordPage = () => {
   const handleChangePassword = async (
     values: z.infer<typeof changePasswordSchema>,
   ) => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) return;
-
-    const email = data.session.user.email;
-    if (!email) return;
+    
 
     setIsLoading(true);
     try {
-      await changePasswordWithVerify({
-        email,
-        currentPassword: values.currentPassword,
+      const res = await changePasswordApi({
+        oldPassword: values.currentPassword,
         newPassword: values.newPassword,
+        confirmNewPassword: values.confirmNewPassword,
       });
 
-      reset();
-      message.success("Thay đổi mật khẩu thành công");
-    } catch (error: any) {
-      if (error.message === "INVALID_CURRENT_PASSWORD") {
-        message.error("Mật khẩu hiện tại không đúng");
-      } else {
-        message.error("Lỗi khi thay đổi mật khẩu. Vui lòng thử lại");
+      if (res.status === "success") {
+        reset();
+        message.success(res.message);
       }
     } finally {
       setIsLoading(false);

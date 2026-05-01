@@ -3,14 +3,14 @@ import type { FormField } from "../../../types/form-field.type";
 
 export const patientFields: FormField[] = [
   {
-    name: "full_name",
+    name: "fullName",
     label: "Họ tên",
     placeholder: "Nhập họ tên",
     type: "input",
     rules: [{ required: true, message: "Vui lòng nhập họ tên" }],
   },
   {
-    name: "date_of_birth",
+    name: "dateOfBirth",
     label: "Ngày sinh",
     placeholder: "Chọn ngày sinh",
     type: "datepicker",
@@ -50,7 +50,7 @@ export const patientFields: FormField[] = [
     rules: [{ required: true, message: "Vui lòng chọn giới tính" }],
   },
   {
-    name: "phone_number",
+    name: "phoneNumber",
     label: "Số điện thoại",
     type: "number",
     placeholder: "Nhập số điện thoại",

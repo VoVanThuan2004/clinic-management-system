@@ -1,7 +1,6 @@
-import { getProfileApi } from "../features/auth/api/get-profile";
-import { supabase } from "../lib/supabase";
 import { create } from "zustand";
-import type { ProfileType } from "../types/user.type";
+import { getProfileApi } from "../services/user.service";
+import { tokenStorage } from "../utils/tokenStorage";
 
 type User = {
   userId: string;
@@ -35,39 +34,65 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   authInit: async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
-      // Lấy thông tin userId
-      const userId = data.session.user.id;
+    // const { data } = await supabase.auth.getSession();
+    // if (data.session) {
+    //   // Lấy thông tin userId
+    //   const userId = data.session.user.id;
 
-      // Gọi api get profile
-      const { data: profileData, error: profileError } =
-        await getProfileApi(userId);
+    //   // Gọi api get profile
+    //   const { data: profileData, error: profileError } =
+    //     await getProfileApi(userId);
 
-      if (profileError) {
-        set({ isAuthenticated: false, user: null, isInitialized: false });
+    //   if (profileError) {
+    //     set({ isAuthenticated: false, user: null, isInitialized: false });
+    //     return;
+    //   }
+
+    //   const profile = profileData as unknown as ProfileType;
+    //   if (profile) {
+    //     set({
+    //       isAuthenticated: true,
+    //       isInitialized: true,
+    //       user: {
+    //         userId: userId,
+    //         fullName: profile.fullname,
+    //         roleName: profile.roles?.name as string,
+    //         avatarUrl: profile.avatarurl,
+    //       },
+    //     });
+
+    //     return;
+    //   }
+
+    //   set({ isAuthenticated: false, user: null, isInitialized: false });
+    // } else {
+    //   set({ isAuthenticated: false, user: null, isInitialized: true });
+    // }
+
+    // Gọi api get profile của user
+    try {
+      if (tokenStorage.getAccessToken === null || !tokenStorage.getAccessToken()) {
+        set({ isAuthenticated: false, user: null, isInitialized: true });
         return;
       }
+      const res = await getProfileApi();
 
-      const profile = profileData as unknown as ProfileType;
-      if (profile) {
+      if (res.status === "success") {
+        const userInfo = res.data;
         set({
           isAuthenticated: true,
           isInitialized: true,
           user: {
-            userId: userId,
-            fullName: profile.fullname,
-            roleName: profile.roles?.name as string,
-            avatarUrl: profile.avatarurl,
+            userId: userInfo?.userId as string,
+            fullName: userInfo?.fullName as string,
+            roleName: userInfo?.role as string,
+            avatarUrl: userInfo?.avatarUrl as string,
           },
         });
-
-        return;
       }
-
-      set({ isAuthenticated: false, user: null, isInitialized: false });
-    } else {
+    } catch (error) {
       set({ isAuthenticated: false, user: null, isInitialized: true });
+      console.log(error);
     }
   },
 }));

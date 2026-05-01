@@ -4,25 +4,24 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { message } from "antd";
+import { loginApiV2 } from "../../services/auth.service";
+import { tokenStorage } from "../../utils/tokenStorage";
 import { useAuthStore } from "../../stores/useAuthStore";
-import { supabase } from "../../lib/supabase";
-import { loginApi } from "../../services/auth.service";
+import { message } from "antd";
 
 const loginSchema = z.object({
   email: z.string().email("Email không đúng định dạng"),
   password: z.string().min(8, "Mật khẩu phải có ít nhất tối thiểu 8 ký tự"),
 });
 
-interface ProfileWithRole {
-  fullname: string;
-  email: string;
-  avatarurl: string | null;
-  roles: {
-    name: string;
-  } | null; // Có thể null nếu join thất bại
-}
+// interface ProfileWithRole {
+//   fullname: string;
+//   email: string;
+//   avatarurl: string | null;
+//   roles: {
+//     name: string;
+//   } | null; // Có thể null nếu join thất bại
+// }
 
 export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -39,78 +38,115 @@ export const LoginForm = () => {
     formState: { errors },
   } = useForm({ resolver: zodResolver(loginSchema) });
 
-  const onLogin = async (loginRequest: { email: string; password: string }) => {
+  // const onLogin = async (loginRequest: { email: string; password: string }) => {
+  //   setIsLoading(true);
+  //   try {
+  //     const { data: authData, error: authError } = await loginApi(loginRequest);
+
+  //     if (authError) throw authError;
+
+  //     // 2. Query thông tin Profile và Join với bảng Roles
+  //     // Cú pháp '*, roles(name)' có nghĩa là: lấy hết cột ở profiles và chỉ lấy cột name ở roles
+  //     const { data: profileData, error: profileError } = await supabase
+  //       .from("profiles")
+  //       .select(
+  //         `
+  //     email,
+  //     fullname,
+  //     avatarurl,
+  //     roles (
+  //       name
+  //     )
+  //   `,
+  //       )
+  //       .eq("id", authData.user.id)
+  //       .single(); // Vì mỗi user chỉ có 1 profile
+
+  //     if (profileError) throw profileError;
+
+  //     // 3. Cập nhật thông tin global user
+  //     const profile = profileData as unknown as ProfileWithRole;
+  //     if (profile) {
+  //       setSession({
+  //         userId: authData.session.user.id,
+  //         fullName: profile.fullname,
+  //         roleName: profile.roles?.name as string,
+  //         avatarUrl: profile.avatarurl || null,
+  //       });
+  //     }
+
+  //     // 4. Kiểm tra role
+  //     if (profile.roles?.name === "employee") {
+  //       message.success("Đăng nhập thành công");
+
+  //       setTimeout(() => {
+  //         navigate("/employee");
+  //       }, 0);
+  //     }
+
+  //     if (profile.roles?.name === "doctor") {
+  //       message.success("Đăng nhập thành công");
+
+  //       setTimeout(() => {
+  //         navigate("/doctor");
+  //       }, 0);
+  //     }
+
+  //     if (profile.roles?.name === "admin") {
+  //       message.success("Đăng nhập thành công");
+
+  //       setTimeout(() => {
+  //         navigate("/admin");
+  //       }, 0);
+  //     }
+  //   } catch (error) {
+  //     message.error("Email hoặc mật khẩu không hợp lệ");
+
+  //     console.log(error);
+
+  //     localStorage.clear();
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  const onLoginV2 = async (loginRequest: {
+    email: string;
+    password: string;
+  }) => {
     setIsLoading(true);
     try {
-      const { data: authData, error: authError } = await loginApi(loginRequest);
+      const res = await loginApiV2(loginRequest);
 
-      if (authError) throw authError;
+      if (res.status === "success") {
+        tokenStorage.setAccessToken(res.data?.accessToken as string);
 
-      // 2. Query thông tin Profile và Join với bảng Roles
-      // Cú pháp '*, roles(name)' có nghĩa là: lấy hết cột ở profiles và chỉ lấy cột name ở roles
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select(
-          `
-      email,
-      fullname,
-      avatarurl,
-      roles (
-        name
-      )
-    `,
-        )
-        .eq("id", authData.user.id)
-        .single(); // Vì mỗi user chỉ có 1 profile
-
-      if (profileError) throw profileError;
-
-      // 3. Cập nhật thông tin global user
-      const profile = profileData as unknown as ProfileWithRole;
-      if (profile) {
         setSession({
-          userId: authData.session.user.id,
-          fullName: profile.fullname,
-          roleName: profile.roles?.name as string,
-          avatarUrl: profile.avatarurl || null,
+          userId: res.data?.userId as string,
+          fullName: res.data?.fullName as string,
+          roleName: res.data?.role as string,
+          avatarUrl: res.data?.avatarUrl as string,
         });
-      }
 
-      // 4. Kiểm tra role
-      if (profile.roles?.name === "employee") {
-        message.success("Đăng nhập thành công");
-
-        setTimeout(() => {
+        // Điều hướng theo role
+        const role = res.data?.role;        
+        if (role === "EMPLOYEE") {
           navigate("/employee");
-        }, 0);
-      }
-
-      if (profile.roles?.name === "doctor") {
-        message.success("Đăng nhập thành công");
-
-        setTimeout(() => {
+        } else if (role === "DOCTOR") {
           navigate("/doctor");
-        }, 0);
-      }
-
-      if (profile.roles?.name === "admin") {
-        message.success("Đăng nhập thành công");
-
-        setTimeout(() => {
+        } else if (role === "ADMIN") {
           navigate("/admin");
-        }, 0);
+        }
+
+        message.success("Đăng nhập thành công");
       }
-    } catch (error) {
-      message.error("Email hoặc mật khẩu không hợp lệ");
-
-      console.log(error);
-
-      localStorage.clear();
+    } catch {
+      // console.log(error);
+    
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="flex flex-col max-w-md w-full mx-auto shadow-2xl rounded-xl bg-white py-8 px-8 relative">
       {/* Back button */}
@@ -126,7 +162,7 @@ export const LoginForm = () => {
         <p className="text-3xl font-bold">Đăng nhập</p>
       </div>
 
-      <form onSubmit={handleSubmit(onLogin)}>
+      <form onSubmit={handleSubmit(onLoginV2)}>
         {/* Email */}
         <div className="flex flex-col gap-1 mb-4">
           <label className="font-medium">Email</label>
@@ -172,7 +208,6 @@ export const LoginForm = () => {
             </p>
           )}
         </div>
-
 
         {/* Reset password */}
         {/* <div className="flex justify-end">

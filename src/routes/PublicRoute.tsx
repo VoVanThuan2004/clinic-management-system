@@ -6,15 +6,20 @@ export const PublicRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
 
-  if (isAuthenticated && user?.roleName === "employee") {
+  console.log(isAuthenticated);
+  console.log(user?.roleName);
+  
+  
+
+  if (isAuthenticated && user?.roleName === "EMPLOYEE") {
     return <Navigate to={"/employee"} replace />;
   }
 
-  if (isAuthenticated && user?.roleName === "doctor") {
+  if (isAuthenticated && user?.roleName === "DOCTOR") {
     return <Navigate to={"/doctor"} replace />;
   }
 
-  if (isAuthenticated && user?.roleName === "admin") {
+  if (isAuthenticated && user?.roleName === "ADMIN") {
     return <Navigate to={"/admin"} replace />;
   }
 

@@ -4,6 +4,7 @@ import { sidebarConfig } from "../lib/sidebar.config";
 import { SidebarItem } from "./SidebarItem";
 import { SidebarGroup } from "./SidebarGroup";
 import { LogOut } from "lucide-react";
+import { logoutApi } from "../services/auth.service";
 
 export const SideBar = () => {
   const navigate = useNavigate();
@@ -12,10 +13,24 @@ export const SideBar = () => {
 
   const menu = sidebarConfig[user?.roleName as string] || [];
 
-  const handleLogout = () => {
-    navigate("/login");
-    clearSession();
-  };
+  // const handleLogout = () => {
+  //   navigate("/login");
+  //   clearSession();
+  // };
+
+  const handleLogoutV2 = async () => {
+    try {
+      const res = await logoutApi();
+      
+      if (res.status === "success") {
+        navigate("/login");
+        clearSession();
+      }
+    } catch (error) {
+      console.log(error);
+      
+    }
+  }
 
   return (
     <div className="w-60 h-screen bg-white shadow-sm flex flex-col p-4">
@@ -35,8 +50,8 @@ export const SideBar = () => {
 
       {/* Logout */}
       <button
-        onClick={handleLogout}
-        className="mt-4 flex items-center justify-center gap-3 py-2"
+        onClick={handleLogoutV2}
+        className="mt-4 flex items-center justify-center gap-3 py-2 cursor-pointer"
       >
         <LogOut className="text-blue-600" size={20} />
         <span className="text-blue-600">Đăng xuất</span>

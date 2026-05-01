@@ -4,7 +4,6 @@ import type {
   PatientExcelRow,
   PatientInsert,
 } from "../../../types/patient.type";
-import { generatePatientCode } from "../../../utils/generatePatientCode";
 
 // map giới tính text → number
 const mapGender = (gender: string) => {
@@ -50,11 +49,10 @@ export const transformPatientExcel = (
       if (!row["Họ tên"]) return null;
 
       return {
-        patient_code: generatePatientCode(),
-        full_name: row["Họ tên"].trim(),
-        date_of_birth: parseDate(row["Ngày sinh"]),
+        fullName: row["Họ tên"].trim(),
+        dateOfBirth: parseDate(row["Ngày sinh"]),
         gender: mapGender(row["Giới tính"]),
-        phone_number: String(row["SĐT"] ?? "").trim(),
+        phoneNumber: String(row["SĐT"] ?? "").trim(),
         address: row["Địa chỉ"].trim(),
       };
     })

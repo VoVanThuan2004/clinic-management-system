@@ -12,11 +12,6 @@ export const useAddPatients = () => {
       queryClient.invalidateQueries({ queryKey: ["patients"] });
 
       message.success("Import file thành công");
-    },
-    onError: (error) => {
-      console.log(error);
-      
-        message.error("Import file thất bại");
     }
   });
 };

@@ -6,7 +6,7 @@ import { EmployeeRoute } from "../routes/EmployeeRoute";
 import { DoctorRoute } from "../routes/DoctorRoute";
 import { PatientPage } from "../pages/Patient";
 import { AppointmentPage } from "../pages/Appointment";
-import { ChangePasswordPage } from "../pages/RecoveryPassword";
+import { ChangePasswordPage } from "../pages/ChangePassword";
 import HomePage from "../pages/Home";
 import { LoginPage } from "../pages/Login";
 import { MainLayout } from "../layouts";
@@ -22,6 +22,7 @@ import { DashboardPage } from "../pages/Dashboard";
 import { MedicalRecordPage } from "../pages/MedicalRecord/MedicalRecordPage";
 import { MedicalRecordDetail } from "../pages/MedicalRecord";
 import { ResetPasswordPage } from "../pages/Reset-Password";
+import { ProfilePage } from "../pages/Profile";
 
 const routes = createBrowserRouter([
   {
@@ -75,7 +76,7 @@ const routes = createBrowserRouter([
           },
           {
             path: "profile",
-            element: <Profile />,
+            element: <ProfilePage />,
           },
           {
             path: "change-password",
