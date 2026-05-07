@@ -13,25 +13,25 @@ type Props = {
 export const getAppointmentColumns = (props: Props) => [
   {
     title: "Bệnh nhân",
-    dataIndex: "full_name",
-    key: "full_name",
+    dataIndex: "patientName",
+    key: "patientName",
     render: (text: string) => (
       <span className="font-medium text-gray-800">{text}</span>
     ),
   },
   {
     title: "Số điện thoại",
-    dataIndex: "phone_number",
-    key: "phone_number",
+    dataIndex: "phoneNumber",
+    key: "phoneNumber",
     render: (text: string) => <span className="text-gray-600">{text}</span>,
   },
 
   {
     title: "Bác sĩ",
-    key: "doctor_name",
+    key: "doctorName",
     render: (_: any, record: any) => {
-      const name = record.doctor_name || "";
-      const avatar = record.avatarurl || record.avatar_url;
+      const name = record.doctorName || "";
+      const avatar = record.avatarUrl;
 
       return (
         <div className="flex items-center gap-3">
@@ -47,22 +47,22 @@ export const getAppointmentColumns = (props: Props) => [
 
   {
     title: "Phòng khám",
-    dataIndex: "room_name",
-    key: "room_name",
+    dataIndex: "roomName",
+    key: "roomName",
     render: (text: string) => <span className="text-gray-600">{text}</span>,
   },
 
   {
     title: "Loại dịch vụ",
-    dataIndex: "service_name",
-    key: "service_name",
+    dataIndex: "serviceName",
+    key: "serviceName",
     render: (text: string) => <span className="text-gray-600">{text}</span>,
   },
 
   {
     title: "Thời gian",
-    dataIndex: "start_time",
-    key: "start_time",
+    dataIndex: "startTime",
+    key: "startTime",
     render: (time: string) => (
       <span className="text-gray-600">
         {dayjs(time).format("HH:mm DD/MM/YYYY")}
@@ -138,7 +138,7 @@ export const getAppointmentColumns = (props: Props) => [
               className="text-green-500"
               onClick={() =>
                 props.handleUpdateStatus(
-                  record.appointment_id,
+                  record.appointmentId,
                   AppointmentStatus.CHECKED_IN,
                 )
               }
@@ -152,7 +152,7 @@ export const getAppointmentColumns = (props: Props) => [
               className="text-red-500"
               onClick={() =>
                 props.handleUpdateStatus(
-                  record.appointment_id,
+                  record.appointmentId,
                   AppointmentStatus.CANCELLED,
                 )
               }
@@ -164,7 +164,7 @@ export const getAppointmentColumns = (props: Props) => [
           {canUpdate && (
             <a
               className="text-blue-500"
-              onClick={() => props.openModalUpdate(record.appointment_id)}
+              onClick={() => props.openModalUpdate(record.appointmentId)}
             >
               Cập nhật
             </a>
@@ -173,7 +173,7 @@ export const getAppointmentColumns = (props: Props) => [
           <Tooltip title="Tải file pdf">
             <span
               onClick={() =>
-                props.onDownloadPDFAppointment(record.appointment_id)
+                props.onDownloadPDFAppointment(record.appointmentId)
               }
               className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-gray-200 hover:bg-red-50 hover:border-red-300 transition cursor-pointer"
             >

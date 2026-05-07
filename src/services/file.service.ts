@@ -1,70 +1,42 @@
-import { supabase } from "../lib/supabase";
+import { axiosClient } from "../api/axios-client";
+import type { ApiResponse } from "../types/api.response";
 import type { FileRecord } from "../types/medical-record.type";
 
 export const getFilesByRecordId = async (recordId: string) => {
-  const { data, error } = await supabase
-    .from("files")
-    .select(
-      `
-        file_id,
-        file_url,
-        file_type
-        `,
-    )
-    .eq("record_id", recordId)
-    .order("uploaded_at", { ascending: false });
-
-  if (error) throw error;
-  return { data: data as unknown as FileRecord[] };
+  const res = await axiosClient.get<ApiResponse<FileRecord[]>>(
+    `/v1/record-files/${recordId}`,
+  );
+  return res.data;
 };
 
 export const uploadFileRecord = async ({
   recordId,
-  fileObj,
-  filePath,
+  files,
 }: {
   recordId: string;
-  fileObj: File;
-  filePath: string;
+  files: File[];
 }) => {
-  // Upload Storage
-  const { error: uploadError } = await supabase.storage
-    .from("images")
-    .upload(filePath, fileObj);
-  if (uploadError) throw uploadError;
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
 
-  // Get URL & Insert DB
-  const { data: urlData } = supabase.storage
-    .from("images")
-    .getPublicUrl(filePath);
-  await supabase.from("files").insert([
+  const res = await axiosClient.post<ApiResponse>(
+    `/v1/record-files?recordId=${recordId}`,
+    formData,
     {
-      record_id: recordId,
-      file_url: urlData.publicUrl,
-      file_type: fileObj.type,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     },
-  ]);
+  );
+
+  return res.data;
 };
 
-export const deleteFileRecord = async (fileId: string, fileUrl: string) => {
-  // 1. Tách lấy Path từ URL
-  const parts = fileUrl.split("/images/");
-  let filePath = parts[parts.length - 1];
-
-  // 2. GIẢI MÃ CHUỖI (Cực kỳ quan trọng)
-  filePath = decodeURIComponent(filePath);
-
-  // 3. Gọi lệnh xóa
-  const { data, error } = await supabase.storage
-    .from("images")
-    .remove([filePath]);
-
-  // Nếu data rỗng, nghĩa là filePath vẫn chưa khớp 100% với trên Dashboard
-  if (error || !data || data.length === 0) {
-    console.error("Xóa thất bại. Data trả về:", data, "Error:", error);
-    throw new Error("File vật lý không tồn tại hoặc sai đường dẫn.");
-  }
-
-  // 4. Xóa DB
-  await supabase.from("files").delete().eq("file_id", fileId);
+export const deleteFileRecordApi = async (fileId: string) => {
+  const res = await axiosClient.delete<ApiResponse>(
+    `/v1/record-files/${fileId}`,
+  );
+  return res.data;
 };

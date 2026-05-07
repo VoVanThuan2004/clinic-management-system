@@ -1,4 +1,7 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
+import type { ApiResponse } from "../types/api.response";
+import type { CategoryOption } from "../types/category.type";
 
 type Props = {
   page?: number;
@@ -28,6 +31,11 @@ export const getCategories = async (props: Props) => {
 
   return await query;
 };
+
+export const getCategoriesOptionApi = async () => {
+  const res = await axiosClient.get<ApiResponse<CategoryOption[]>>("/v1/categories/options");
+  return res.data;
+}
 
 // Thêm danh mục
 export const addCategory = async (category_name: string) => {

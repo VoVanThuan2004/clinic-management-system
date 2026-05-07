@@ -51,59 +51,6 @@ export const ProfilePage = () => {
   const handleUpdateProfile = (data: z.infer<typeof profileSchema>) => {
     if (!data) return;
 
-    // Nếu có upload ảnh mới
-    // if (previewImage) {
-    //   useUpdateProfileMutate.mutate(
-    //     {
-    //       id: userInfo?.userId as string,
-    //       fullname: data.fullname,
-    //       phonenumber: data.phonenumber,
-    //       avatar: previewFile as File,
-    //       prevAvatar: userInfo?.avatarUrl as string,
-    //     },
-    //     {
-    //       onSuccess: () => {
-    //         message.success("Cập nhật thông tin thành công");
-
-    //         // Cập nhật lại state
-    //         setSession({
-    //           userId: userInfo?.userId as string,
-    //           roleName: userInfo?.role as string,
-    //           fullName: data.fullname,
-    //           avatarUrl: previewImage,
-    //         });
-    //       },
-    //       onError: () => {
-    //         message.error("Cập nhật thông tin thất bại. Vui lòng thử lại.");
-    //       },
-    //     },
-    //   );
-    // } else {
-    //   useUpdateProfileMutate.mutate(
-    //     {
-    //       id: userInfo?.userId as string,
-    //       fullname: data.fullname,
-    //       phonenumber: data.phonenumber,
-    //     },
-    //     {
-    //       onSuccess: () => {
-    //         message.success("Cập nhật thông tin thành công");
-
-    //         // Cập nhật lại state
-    //         setSession({
-    //           userId: userInfo?.userId as string,
-    //           roleName: userInfo?.role as string,
-    //           fullName: data.fullname,
-    //           avatarUrl: userInfo?.avatarUrl as string,
-    //         });
-    //       },
-    //       onError: () => {
-    //         message.error("Cập nhật thông tin thất bại. Vui lòng thử lại.");
-    //       },
-    //     },
-    //   );
-    // }
-
     useUpdateProfileMutate.mutate(
       {
         id: userInfo?.userId as string,
@@ -113,7 +60,7 @@ export const ProfilePage = () => {
       },
       {
         onSuccess: () => {
-          message.success(useUpdateProfileMutate.data?.message);
+          message.success(useUpdateProfileMutate.data?.message || "Cập nhật thông tin thành công");
 
           // Cập nhật lại state
           setSession({

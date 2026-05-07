@@ -10,9 +10,5 @@ export const useCreatePrescription = () => {
       queryClient.invalidateQueries({ queryKey: ["prescription"] });
       message.success("Tạo toa thuốc thành công");
     },
-    onError: (error) => {
-      console.log(error);
-      message.error("Có lỗi xảy ra khi tạo toa thuốc");
-    },
   });
 };

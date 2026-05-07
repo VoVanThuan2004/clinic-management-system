@@ -14,7 +14,9 @@ export const useMedicalServiceOption = () => {
       try {
         const res = await selectMedicalService();        
 
-        setMedicalServices(res.data);
+        if (res.status === "success") {
+          setMedicalServices(res.data ?? null);
+        }
       } catch (error) {
         console.error("Error fetching medical services:", error);
       } finally {

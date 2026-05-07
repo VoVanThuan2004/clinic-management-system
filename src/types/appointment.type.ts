@@ -1,12 +1,22 @@
 import type dayjs from "dayjs";
-import type { Doctor } from "./doctor.type";
-import type { Patient } from "./patient.type";
 
 export type AppointmentCalendarProps = {
   doctor_id?: string;
   start_time: string;
   end_time: string;
 };
+
+export type AppointmentResponse = {
+  appointmentId: string;
+  patientName: string;
+  phoneNumber: string;
+  doctorName: string;
+  roomName: string;
+  serviceName: string;
+  startTime: string;
+  reason: string;
+  status: string;
+}
 
 export type AppointmentCalendarResponse = {
   appointment_id: string;
@@ -40,53 +50,67 @@ export type AppointmentTableResponse = {
 };
 
 export type BookedData = {
-  start_time: string;
-  duration_minutes: number;
+  startTime: string;
+  durationMinutes: number;
 };
 
 // type tạo appointment mới
-export type CreateAppointmentData = {
-  patient_id: string;
-  doctor_id: string;
-  employee_id: string;  // Nhân viên thực hiện tạo
-  start_time: string;
-  service_id: string;
-  room_id: string;
-  duration_minutes: number;
+export type AppointmentData = {
+  patientId: string;
+  doctorId: string;
+  employeeId: string;  // Nhân viên thực hiện tạo
+  startTime: string;
+  serviceId: string;
+  roomId: string;
+  durationMinutes: number;
+  reason: string;
+};
+
+export type AppointmentDetailPDF = {
+  appointmentId: string;
+  patientName: string;
+  dateOfBirth: string;
+  gender: number;
+  phoneNumber: string;
+  address: string;
+  doctorName: string;
+  specialty: string;
+  employeeName: string;
+  roomName: string;
+  serviceName: string;
+  startTime: string;
   reason: string;
   status: string;
 };
 
 export type AppointmentDetail = {
-  appointment_id: string;
-  service_id: string;
-  room_id: string;
-  start_time: string;
-  duration_minutes: number;
-  status: string;
+  appointmentId: string;
+  patientId: string;
+  patientCode: string;
+  patientName: string;
+  phoneNumber: string;
+  gender: number;
+  dateOfBirth: string;
+  address: string;
+  doctorId: string;
+  employeeId: string;
+  roomId: string;
+  serviceId: string;
+  startTime: string;
+  durationMinutes: number;
   reason: string;
-  patients: Patient;
-  doctor: Doctor;
-  employee: {
-    fullname: string;
-  },
-  rooms: {
-    room_name: string;
-  },
-  services: {
-    service_name: string;
-  }
-};
+}
 
 export type AppointmentUpdate = {
-  appointment_id: string;
-  start_time: string;
+  appointmentId: string;
+  startTime: string;
   reason: string;
-  service_id: string;
-  room_id: string;
-  duration_minutes: number;
-  patient_id: string;
-  doctor_id: string;
+  serviceId: string;
+  roomId: string;
+  durationMinutes: number;
+  patientId: string;
+  doctorId: string;
+  employeeId: string;
 }
 
 export type Interval = {

@@ -1,4 +1,7 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
+import type { ApiResponse } from "../types/api.response";
+import type { MedicalServiceOption } from "../types/medical-service.type";
 import type {
   AddServiceParams,
   UpdateServiceParams,
@@ -6,10 +9,11 @@ import type {
 
 // Hàm lấy danh sách dịch vụ khám
 export const selectMedicalService = async () => {
-  return await supabase.from("services").select(`
-                service_id,
-                service_name   
-            `);
+  const res = await axiosClient.get<ApiResponse<MedicalServiceOption[]>>(
+    "/v1/services/options",
+  );
+
+  return res.data;
 };
 
 // Hàm trả về chi phí dịch vụ khám theo record_id

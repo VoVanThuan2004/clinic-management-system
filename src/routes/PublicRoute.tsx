@@ -6,10 +6,6 @@ export const PublicRoute = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
 
-  console.log(isAuthenticated);
-  console.log(user?.roleName);
-  
-  
 
   if (isAuthenticated && user?.roleName === "EMPLOYEE") {
     return <Navigate to={"/employee"} replace />;

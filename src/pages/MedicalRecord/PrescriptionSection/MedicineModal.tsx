@@ -1,12 +1,12 @@
 import { Button, Empty, Input, Modal, Pagination, Select, Spin } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { MedicineItem } from "./MedicineItem";
-import { useCategories } from "../../../hooks/category/useCategories";
-import type { Category } from "../../../types/category.type";
+import type { CategoryOption } from "../../../types/category.type";
 import { useMemo, useState } from "react";
 import { useMedicines } from "../../../hooks/medicine/useMedicines";
 import type { Medicine } from "../../../types/medicine.type";
 import { useDebounce } from "use-debounce";
+import { useCategoriesOption } from "../../../hooks/category/useCategoriesOption";
 
 type Props = {
   isOpen: boolean;
@@ -18,14 +18,14 @@ export const MedicineModal = (props: Props) => {
   const { isOpen, onClose, prescriptionId } = props;
   const [categoryId, setCategoryId] = useState("all");
   const [pagination, setPagination] = useState({
-    page: 1,
+    page: 0,
     pageSize: 6,
   });
   const [searchMedicine, setSearchMedicine] = useState("");
   const [searchMedicineDebouned] = useDebounce(searchMedicine, 500);
 
   // Gọi hook api lấy danh sách danh mục thuốc
-  const { categories, isLoading, error } = useCategories();
+  const { categories, isLoading } = useCategoriesOption({});
 
   // Gọi hook api lấy danh sách thuốc theo categoryId
   const { data, isLoading: isMedicinesLoading } = useMedicines({
@@ -34,13 +34,13 @@ export const MedicineModal = (props: Props) => {
     page: pagination.page,
     pageSize: pagination.pageSize,
   });
-  const medicines = data?.data || [];
+  const medicines = data?.data?.content || [];
 
 
   // tạo options cho Select từ categories, tạo label và value (all) măc định
-  const categoryOptions = categories.map((category: Category) => ({
-    label: category.category_name,
-    value: category.category_id,
+  const categoryOptions = categories.map((category: CategoryOption) => ({
+    label: category.categoryName,
+    value: category.categoryId,
   }));
 
   // Thêm tùy chọn "Tất cả" vào đầu danh sách
@@ -55,9 +55,10 @@ export const MedicineModal = (props: Props) => {
     [categoryOptions],
   );
 
-  if (error) {
-    alert("Lỗi khi tải danh mục thuốc: " + error);
-    return;
+  const handleCloseModal = () => {
+    // Reset lại các state khi đóng modal
+    setSearchMedicine("");
+    onClose();
   }
 
   return (
@@ -98,7 +99,7 @@ export const MedicineModal = (props: Props) => {
           </div>
         </div>
       }
-      onCancel={onClose}
+      onCancel={handleCloseModal}
       centered
       destroyOnClose
       width={1000}
@@ -109,11 +110,11 @@ export const MedicineModal = (props: Props) => {
             <div className="py-2 border-t border-gray-50">
               <Pagination
                 align="center"
-                current={pagination.page}
+                current={pagination.page + 1}
                 pageSize={pagination.pageSize}
-                total={data?.count || 0} // Lấy tổng số record từ API trả về
+                total={data?.data?.totalElements || 0} // Lấy tổng số record từ API trả về
                 onChange={(page, pageSize) => {
-                  setPagination({ page, pageSize });
+                  setPagination({ page: page - 1, pageSize });
                 }}
                 showSizeChanger={false} // Ẩn chọn số lượng mỗi trang nếu không cần thiết
                 size="medium"
@@ -138,7 +139,7 @@ export const MedicineModal = (props: Props) => {
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {medicines.length > 0 ? (
               medicines.map((medicine: Medicine) => (
-                <MedicineItem key={medicine.medicine_id} medicine={medicine} prescriptionId={prescriptionId}/>
+                <MedicineItem key={medicine.medicineId} medicine={medicine} prescriptionId={prescriptionId}/>
               ))
             ) : (
               <div className="flex items-center justify-center py-20 w-full">

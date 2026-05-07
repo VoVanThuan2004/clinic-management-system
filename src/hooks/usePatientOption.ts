@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import type { Patient } from "../types/patient.type";
-import { selectPatientApi } from "../services/patient.service";
+import { getPatientsApi } from "../services/patient.service";
 
 type Props = {
   searchPatient?: string;
 };
 
 export const usePatientOption = (props: Props) => {
-  const [data, setData] = useState<Patient[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const { searchPatient } = props;
@@ -17,11 +16,15 @@ export const usePatientOption = (props: Props) => {
     const fetchPatients = async () => {
       setIsLoading(true);
       try {
-        const data = await selectPatientApi({ search: searchPatient });
+        const data = await getPatientsApi({
+          page: 0,
+          pageSize: 10,
+          search: searchPatient
+        })
 
-        if (data.error) throw data.error;
 
-        setData(data?.data || []);
+        const patients = data.data?.content || [];
+        setData(patients)
       } catch (error) {
         console.error("Fetch patient error:", error);
         setData([]);

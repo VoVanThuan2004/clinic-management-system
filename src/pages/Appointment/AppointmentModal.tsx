@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { usePatientOption } from "../../hooks/usePatientOption";
 import { useDoctorOption } from "../../hooks/useDoctorOption";
-import type { Doctor } from "../../types/doctor.type";
+import type { DoctorOption } from "../../types/doctor.type";
 import type { Patient } from "../../types/patient.type";
 import TextArea from "antd/es/input/TextArea";
 import { formatDate } from "../../utils/formatDate";
@@ -16,6 +16,7 @@ import type { AppointmentUpdate } from "../../types/appointment.type";
 import { useMedicalServiceOption } from "../../hooks/medical-service/useMedicalServiceOption";
 import { useRoomOption } from "../../hooks/room/useRoomOption";
 import { useAvailableSlots } from "../../hooks/appointment/useAvailableSlots";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 type Props = {
   isOpen: boolean;
@@ -26,6 +27,7 @@ type Props = {
 export const AppointmentModal = (props: Props) => {
   const { isOpen, onClose, appointmentId } = props;
   const [form] = useForm();
+  const employee = useAuthStore((state) => state.user);
 
   // Gọi hook api lấy chi tiết appointment
   const { appointment, isLoading: isLoadingAppointment } =
@@ -38,7 +40,9 @@ export const AppointmentModal = (props: Props) => {
 
   // State quản lý chọn bác sĩ
   const [searchDoctor, setSearchDoctor] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorOption | null>(
+    null,
+  );
   const [debounceSearchDoctor] = useDebounce(searchDoctor, 500);
 
   // State quản lý chọn phòng khám
@@ -57,57 +61,56 @@ export const AppointmentModal = (props: Props) => {
   const [durationMinutes, setDurationMinutes] = useState<number>();
 
   useEffect(() => {
-    if (!appointment) {
+    if (!appointment || !isOpen) {
       return;
     }
 
     form.setFieldsValue({
-      patient: appointment.patients.id,
-      doctor: appointment.doctor.id,
-      date: dayjs(appointment.start_time),
-      service: appointment.service_id,
-      room: appointment.room_id,
-      estimated_duration_minutes: appointment.duration_minutes,
+      patient: appointment.patientId,
+      doctor: appointment.doctorId,
+      date: dayjs(appointment.startTime),
+      service: appointment.serviceId,
+      room: appointment.roomId,
+      estimated_duration_minutes: appointment.durationMinutes,
       reason: appointment.reason,
     });
-  }, [appointment, form]);
+  }, [appointment, isOpen]);
 
   const appointmentDate = appointment
-    ? dayjs(appointment.start_time).format("YYYY-MM-DD")
+    ? dayjs(appointment.startTime).format("YYYY-MM-DD")
     : null;
   const appointmentSlot = appointment
-    ? dayjs(appointment.start_time).format("HH:mm")
+    ? dayjs(appointment.startTime).format("HH:mm")
     : null;
   const effectiveSelectedDate = selectedDate ?? appointmentDate;
   const effectiveSelectedSlot = selectedSlot ?? appointmentSlot;
-  const selectedDoctorId = selectedDoctor?.id ?? appointment?.doctor.id;
-  const selectedRoomId = selectedRoom ?? appointment?.room_id;
+  const selectedDoctorId =
+    selectedDoctor?.doctorId ?? appointment?.doctorId ?? "";
+  const selectedRoomId = selectedRoom ?? appointment?.roomId;
 
   // Gọi hook api lấy thời gian trống cho lịch hẹn
   const { slots, loading } = useAvailableSlots({
     doctorId: selectedDoctorId ?? "",
     roomId: selectedRoomId ?? "",
     date: effectiveSelectedDate ?? "",
-    duration: durationMinutes ?? (appointment?.duration_minutes as number),
+    duration: durationMinutes ?? (appointment?.durationMinutes as number),
   });
 
   const isSameAppointmentContext =
     appointment &&
     effectiveSelectedDate === appointmentDate &&
-    selectedDoctorId === appointment?.doctor.id &&
-    selectedRoomId === appointment?.room_id;
+    selectedDoctorId === appointment?.doctorId &&
+    selectedRoomId === appointment?.roomId;
 
   const displaySlots =
-    appointment?.doctor.id &&
-    appointment?.room_id &&
-    appointment?.start_time &&
-    appointment?.duration_minutes
+    appointment?.doctorId &&
+    appointment?.roomId &&
+    appointment?.startTime &&
+    appointment?.durationMinutes
       ? isSameAppointmentContext && appointmentSlot
         ? Array.from(new Set([appointmentSlot, ...slots]))
         : slots
       : [];
-
-  
 
   // Gọi hook api select patients
   const { data, isLoading } = usePatientOption({
@@ -127,27 +130,27 @@ export const AppointmentModal = (props: Props) => {
 
   // mapping data trả về dạng label - value cho bệnh nhân
   const options = data.map((item) => ({
-    label: `${item.full_name} - ${item.phone_number}`,
-    value: item.id,
+    label: `${item.fullName} - ${item.phoneNumber}`,
+    value: item.patientId,
     patient: item, // lưu thông tin gốc của bệnh nhân để hiện thị sau khi chọn xong
   }));
 
   // mapping data trả về dạng label - value cho doctor
   const optionDoctors = doctors.map((item) => ({
-    label: `${item.fullname} - ${item.doctor_details.specialty}`,
-    value: item.id,
+    label: `${item.doctorName} - ${item.specialty}`,
+    value: item.doctorId,
     doctor: item,
   }));
 
   // mapping data trả về dạng label - value cho dịch vụ khám
   const optionMedicalServices = medicalServices?.map((item) => ({
-    label: item.service_name,
-    value: item.service_id,
+    label: item.serviceName,
+    value: item.serviceId,
   }));
 
   const optionRooms = rooms?.map((item) => ({
-    label: item.room_name,
-    value: item.room_id,
+    label: item.roomName,
+    value: item.roomId,
   }));
 
   // Hook cập nhật lịch hẹn
@@ -183,15 +186,19 @@ export const AppointmentModal = (props: Props) => {
     ).toISOString();
 
     const appointmentUpdate: AppointmentUpdate = {
-      appointment_id: props.appointmentId,
-      patient_id: values.patient,
-      doctor_id: selectedDoctor?.id as string,
-      service_id: selectedMedicalService || values.service, // Nếu đã chọn dịch vụ mới thì lấy giá trị mới, ngược lại giữ nguyên
-      room_id: selectedRoom ?? values.room,
-      start_time,
-      duration_minutes: durationMinutes as number,
+      appointmentId: props.appointmentId,
+      patientId: values.patient,
+      doctorId: selectedDoctor?.doctorId ?? values.doctor,
+      serviceId: selectedMedicalService ?? values.service, // Nếu đã chọn dịch vụ mới thì lấy giá trị mới, ngược lại giữ nguyên
+      roomId: selectedRoom ?? values.room,
+      startTime: start_time,
+      durationMinutes: durationMinutes as number ?? values.estimated_duration_minutes, // Nếu đã chọn thời lượng mới thì lấy giá trị mới, ngược lại giữ nguyên
       reason: values.reason,
+      employeeId: employee?.userId as string,
     };
+
+    console.log(appointmentUpdate);
+    
 
     updateAppointmentMutate.mutate(appointmentUpdate, {
       onSuccess: () => {
@@ -242,10 +249,10 @@ export const AppointmentModal = (props: Props) => {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-[16px] font-semibold text-gray-800">
-                    {selectedPatient.full_name}
+                    {selectedPatient.fullName}
                   </h2>
                   <p className="text-xs text-gray-500">
-                    Mã BN: {selectedPatient.patient_code}
+                    Mã BN: {selectedPatient.patientCode}
                   </p>
                 </div>
                 <span className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-lg">
@@ -258,7 +265,7 @@ export const AppointmentModal = (props: Props) => {
               <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
                 <div>
                   <p className="text-gray-500">SĐT</p>
-                  <p className="font-medium">{selectedPatient.phone_number}</p>
+                  <p className="font-medium">{selectedPatient.phoneNumber}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Giới tính</p>
@@ -269,7 +276,7 @@ export const AppointmentModal = (props: Props) => {
                 <div>
                   <p className="text-gray-500">Ngày sinh</p>
                   <p className="font-medium">
-                    {formatDate(selectedPatient.date_of_birth)}
+                    {formatDate(selectedPatient.dateOfBirth)}
                   </p>
                 </div>
                 <div>
@@ -285,10 +292,10 @@ export const AppointmentModal = (props: Props) => {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-[16px] font-semibold text-gray-800">
-                    {appointment?.patients.full_name}
+                    {appointment?.patientName}
                   </h2>
                   <p className="text-xs text-gray-500">
-                    Mã BN: {appointment?.patients.patient_code}
+                    Mã BN: {appointment?.patientCode}
                   </p>
                 </div>
                 <span className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-lg">
@@ -301,25 +308,23 @@ export const AppointmentModal = (props: Props) => {
               <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
                 <div>
                   <p className="text-gray-500">SĐT</p>
-                  <p className="font-medium">
-                    {appointment?.patients.phone_number}
-                  </p>
+                  <p className="font-medium">{appointment?.phoneNumber}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Giới tính</p>
                   <p className="font-medium">
-                    {appointment?.patients.gender === 1 ? "Nam" : "Nữ"}
+                    {appointment?.gender === 1 ? "Nam" : "Nữ"}
                   </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Ngày sinh</p>
                   <p className="font-medium">
-                    {formatDate(appointment?.patients.date_of_birth)}
+                    {formatDate(appointment?.dateOfBirth)}
                   </p>
                 </div>
                 <div>
                   <p className="text-gray-500">Địa chỉ</p>
-                  <p className="font-medium">{appointment?.patients.address}</p>
+                  <p className="font-medium">{appointment?.address}</p>
                 </div>
               </div>
             </div>

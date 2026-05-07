@@ -34,41 +34,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   authInit: async () => {
-    // const { data } = await supabase.auth.getSession();
-    // if (data.session) {
-    //   // Lấy thông tin userId
-    //   const userId = data.session.user.id;
-
-    //   // Gọi api get profile
-    //   const { data: profileData, error: profileError } =
-    //     await getProfileApi(userId);
-
-    //   if (profileError) {
-    //     set({ isAuthenticated: false, user: null, isInitialized: false });
-    //     return;
-    //   }
-
-    //   const profile = profileData as unknown as ProfileType;
-    //   if (profile) {
-    //     set({
-    //       isAuthenticated: true,
-    //       isInitialized: true,
-    //       user: {
-    //         userId: userId,
-    //         fullName: profile.fullname,
-    //         roleName: profile.roles?.name as string,
-    //         avatarUrl: profile.avatarurl,
-    //       },
-    //     });
-
-    //     return;
-    //   }
-
-    //   set({ isAuthenticated: false, user: null, isInitialized: false });
-    // } else {
-    //   set({ isAuthenticated: false, user: null, isInitialized: true });
-    // }
-
     // Gọi api get profile của user
     try {
       if (tokenStorage.getAccessToken === null || !tokenStorage.getAccessToken()) {

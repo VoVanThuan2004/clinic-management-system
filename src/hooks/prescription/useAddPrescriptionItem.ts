@@ -11,9 +11,6 @@ export const useAddPrescriptionItem = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["prescription"] });
       message.success("Đã thêm thuốc vào toa");
-    },
-    onError: () => {
-      message.error("Lỗi khi thêm thuốc vào toa");
-    },
+    }
   });
 };

@@ -19,7 +19,7 @@ export const PrescriptionItem = ({ item, payment_status, onDelete, onUpdateQuant
     if (dosage === undefined) return;
 
     const timeout = setTimeout(() => {
-      onUpdateDosage(item.item_id, dosage);
+      onUpdateDosage(item.itemId, dosage);
     }, 1000);
 
     return () => clearTimeout(timeout);
@@ -29,11 +29,11 @@ export const PrescriptionItem = ({ item, payment_status, onDelete, onUpdateQuant
     const newQuantity = parseInt(e.target.value) || 0;
     if (newQuantity < 1) {
       // Xóa thuốc
-      onDelete(item.item_id);
+      onDelete(item.itemId);
       return;
     };
     setQuantity(newQuantity);
-    onUpdateQuantity(item.item_id, newQuantity); // Gọi hàm cập nhật số lượng callback
+    onUpdateQuantity(item.itemId, newQuantity); // Gọi hàm cập nhật số lượng callback
   }
 
   const handleUpdateDosage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,14 +47,14 @@ export const PrescriptionItem = ({ item, payment_status, onDelete, onUpdateQuant
       <div className="flex items-center gap-4 w-full sm:w-auto flex-1">
         <div className="relative">
           <img
-            src={item.image_url}
-            alt={item.medicine_name}
+            src={item.imageUrl}
+            alt={item.medicineName}
             className="w-16 h-16 object-cover rounded-lg border border-gray-100"
           />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-gray-900 truncate">
-            {item.medicine_name}
+            {item.medicineName}
           </p>
           <p className="text-sm font-medium text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded mt-1">
             {Number(item.price).toLocaleString()}đ
@@ -64,7 +64,7 @@ export const PrescriptionItem = ({ item, payment_status, onDelete, onUpdateQuant
         {/* Nút xóa hiện ở góc trên bên phải khi ở mobile */}
         {!payment_status && (
           <button
-            onClick={() => onDelete(item.item_id)}
+            onClick={() => onDelete(item.itemId)}
             className="sm:hidden p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors cursor-pointer"
           >
             <PlusIcon size={20} className="rotate-45" />
@@ -106,7 +106,7 @@ export const PrescriptionItem = ({ item, payment_status, onDelete, onUpdateQuant
         {/* Nút xóa trên Desktop */}
         {!payment_status && (
           <button
-            onClick={() => onDelete(item.item_id)}
+            onClick={() => onDelete(item.itemId)}
             className="hidden sm:flex items-center justify-center p-2 text-red-500 hover:bg-red-50 rounded-full transition-all ml-2 cursor-pointer"
           >
             <PlusIcon size={20} className="rotate-45" />

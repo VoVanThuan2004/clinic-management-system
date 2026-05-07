@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { selectDoctor } from "../services/doctor.service";
-import type { Doctor } from "../types/doctor.type";
+import { selectDoctorApi } from "../services/doctor.service";
+import type { DoctorOption } from "../types/doctor.type";
 
 type Props = {
   searchDoctor?: string;
@@ -8,7 +8,7 @@ type Props = {
 
 export const useDoctorOption = (props: Props) => {
   const [isLoadingDoctor, setIsLoadingDoctor] = useState(false);
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [doctors, setDoctors] = useState<DoctorOption[]>([]);
 
   const { searchDoctor } = props;
 
@@ -16,11 +16,12 @@ export const useDoctorOption = (props: Props) => {
     const fetchDoctors = async () => {
       setIsLoadingDoctor(true);
       try {
-        const res = await selectDoctor(props);
+        const res = await selectDoctorApi(props);
 
-        if (res.error) throw res.error;
-
-        setDoctors(res.data);
+        if (res.status === "success") {
+          setDoctors(res.data || []);
+        }
+        
       } catch (error) {
         console.log(error);
         setDoctors([]);

@@ -1,5 +1,4 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { Profile } from "../features/auth";
 import { NotFound } from "../pages/NotFound/NotFound";
 import { PublicRoute } from "../routes/PublicRoute";
 import { EmployeeRoute } from "../routes/EmployeeRoute";
@@ -112,7 +111,7 @@ const routes = createBrowserRouter([
           },
           {
             path: "profile",
-            element: <Profile />,
+            element: <ProfilePage />,
           },
           {
             path: "change-password",
@@ -179,7 +178,7 @@ const routes = createBrowserRouter([
           },
           {
             path: "profile",
-            element: <Profile />,
+            element: <ProfilePage />,
           },
           {
             path: "change-password",

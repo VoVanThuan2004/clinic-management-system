@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 import { Button, Card, Skeleton } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useTotalMedicalRecords } from "../../hooks/medical-record/useTotalMedicalRecords";
-import { useAppointmentList } from "../../hooks/useAppointmentList";
+// import { useAppointmentList } from "../../hooks/useAppointmentList";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -19,12 +19,14 @@ export default function HomePage() {
   const { total, isLoading } = useTotalMedicalRecords();
 
   // Gọi hook api lấy lịch khám hôm nay
-  const { data, isLoading: isLoadingAppointment } = useAppointmentList({
-    date: dayjs(),
-    page: 1,
-    pageSize: 5,
-  });
-  const appointments = data?.data ?? [];
+  // const { data, isLoading: isLoadingAppointment } = useAppointmentList({
+  //   date: dayjs(),
+  //   page: 1,
+  //   pageSize: 5,
+  // });
+
+  const isLoadingAppointment = true;
+  const appointments: any[] =  [];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -127,7 +129,7 @@ export default function HomePage() {
                     <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
                       {isLoadingAppointment
                         ? "..."
-                        : `${appointments.length} việc`}
+                        : `${8} việc`}
                     </span>
                   </div>
                   <div className="grid gap-3">

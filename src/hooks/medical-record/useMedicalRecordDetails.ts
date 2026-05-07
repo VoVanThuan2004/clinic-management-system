@@ -15,7 +15,7 @@ export const useMedicalRecordDetails = (recordId: string) => {
       setError(null);
       try {
         const { data } = await getMedicalRecordDetails(recordId);
-        setMedicalRecord(data);
+        setMedicalRecord(data as MedicalRecordDetail);
       } catch (error) {
         setError("Failed to fetch medical record details");
         console.log(error);

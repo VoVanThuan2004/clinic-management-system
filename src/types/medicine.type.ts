@@ -1,11 +1,11 @@
 export type Medicine = {
-  medicine_id: string;
-  medicine_name: string;
+  medicineId: string;
+  medicineName: string;
   image: string;
   unit: string;
-  original_price: number;
-  selling_price: number;
-  stock_quantity: number;
+  originalPrice: number;
+  sellingPrice: number;
+  stockQuantity: number;
   description: string;
   status: boolean;
 };

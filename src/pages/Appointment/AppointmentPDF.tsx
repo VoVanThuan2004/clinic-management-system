@@ -1,13 +1,7 @@
 import dayjs from "dayjs";
-import type { AppointmentDetail } from "../../types/appointment.type";
+import type { AppointmentDetailPDF } from "../../types/appointment.type";
 import "../../lib/pdf_font";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { getAppointmentStatus } from "./get-appointment-status";
 
 // Định nghĩa Stylesheet
@@ -117,13 +111,30 @@ const styles = StyleSheet.create({
   },
 });
 
-
-export const AppointmentPDF = ({ appointment}: { appointment: AppointmentDetail}) => {
-    
-  const { patients, doctor, employee, rooms, services } = appointment;
+export const AppointmentPDF = ({
+  appointment,
+}: {
+  appointment: AppointmentDetailPDF;
+}) => {
+  const {
+    appointmentId,
+    patientName,
+    dateOfBirth,
+    gender,
+    phoneNumber,
+    address,
+    doctorName,
+    specialty,
+    employeeName,
+    roomName,
+    serviceName,
+    startTime,
+    reason,
+    status
+  } = appointment;
 
   // Xử lý format ngày giờ
-  const appointmentDate = dayjs(appointment.start_time);
+  const appointmentDate = dayjs(startTime);
   const dateStr = appointmentDate.format("DD/MM/YYYY");
   const timeStr = appointmentDate.format("HH:mm");
 
@@ -134,7 +145,9 @@ export const AppointmentPDF = ({ appointment}: { appointment: AppointmentDetail}
         <View style={styles.header}>
           <Text style={styles.clinicName}>PHÒNG KHÁM ĐA KHOA</Text>
           <Text style={styles.documentTitle}>PHIẾU HẸN KHÁM BỆNH</Text>
-          <Text style={styles.appointmentId}>Mã phiếu: {appointment.appointment_id.split("-")[0].toUpperCase()}</Text>
+          <Text style={styles.appointmentId}>
+            Mã phiếu: {appointmentId.split("-")[0].toUpperCase()}
+          </Text>
         </View>
 
         {/* ================= PATIENT INFO ================= */}
@@ -143,28 +156,44 @@ export const AppointmentPDF = ({ appointment}: { appointment: AppointmentDetail}
 
           <View style={styles.row}>
             <Text style={styles.label}>Họ và tên:</Text>
-            <Text style={[styles.value, { textTransform: "uppercase", fontWeight: "bold" }]}>
-              {patients?.full_name}
+            <Text
+              style={[
+                styles.value,
+                { textTransform: "uppercase", fontWeight: "bold" },
+              ]}
+            >
+              {patientName}
             </Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Ngày sinh:</Text>
             <Text style={styles.value}>
-              {patients?.date_of_birth ? dayjs(patients.date_of_birth).format("DD/MM/YYYY") : "..."}
+              {dateOfBirth
+                ? dayjs(dateOfBirth).format("DD/MM/YYYY")
+                : "..."}
             </Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Giới tính:</Text>
             <Text style={styles.value}>
-              {patients?.gender === 1 ? "Nam" : patients?.gender === 0 ? "Nữ" : "Khác"}
+              {gender === 1
+                ? "Nam"
+                : gender === 0
+                  ? "Nữ"
+                  : "Khác"}
             </Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Số điện thoại:</Text>
-            <Text style={styles.value}>{patients?.phone_number || "..."}</Text>
+            <Text style={styles.value}>{phoneNumber || "..."}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Địa chỉ:</Text>
+            <Text style={styles.value}>{address || "..."}</Text>
           </View>
         </View>
 
@@ -183,52 +212,61 @@ export const AppointmentPDF = ({ appointment}: { appointment: AppointmentDetail}
             </View>
             <View style={styles.highlightRow}>
               <Text style={styles.highlightLabel}>Phòng khám:</Text>
-              <Text style={styles.highlightValue}>{rooms?.room_name || "Chưa xếp phòng"}</Text>
+              <Text style={styles.highlightValue}>
+                {roomName || "Chưa xếp phòng"}
+              </Text>
             </View>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Dịch vụ khám:</Text>
-            <Text style={styles.value}>{services?.service_name}</Text>
+            <Text style={styles.value}>{serviceName}</Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Lý do khám:</Text>
-            <Text style={styles.value}>{appointment.reason || "Không có"}</Text>
+            <Text style={styles.value}>{reason || "Không có"}</Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Bác sĩ phụ trách:</Text>
             <Text style={styles.value}>
-              {doctor?.fullname} {doctor?.doctor_details?.specialty ? `(${doctor.doctor_details.specialty})` : ""}
+              {doctorName}{" "}
+              {specialty
+                ? `(${specialty})`
+                : ""}
             </Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Nhân viên thực hiện:</Text>
-            <Text style={styles.value}>
-              {employee.fullname || ""}
-            </Text>
+            <Text style={styles.value}>{employeeName || ""}</Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Trạng thái:</Text>
             <Text style={styles.value}>
-              {getAppointmentStatus(appointment.status) || ""}
+              {getAppointmentStatus(status) || ""}
             </Text>
           </View>
         </View>
 
-        
-
         {/* ================= NOTES ================= */}
         <View style={styles.noteWrapper}>
           <Text style={[styles.noteText]}>* Lưu ý dành cho bệnh nhân:</Text>
-          <Text style={styles.noteText}>1. Vui lòng mang theo phiếu này và đến trước giờ hẹn 15 phút để làm thủ tục.</Text>
-          <Text style={styles.noteText}>2. Nếu không thể đến đúng hẹn, vui lòng liên hệ tổng đài để dời lịch.</Text>
-          <Text style={styles.noteText}>3. Vui lòng mang theo các kết quả xét nghiệm, đơn thuốc cũ (nếu có).</Text>
+          <Text style={styles.noteText}>
+            1. Vui lòng mang theo phiếu này và đến trước giờ hẹn 15 phút để làm
+            thủ tục.
+          </Text>
+          <Text style={styles.noteText}>
+            2. Nếu không thể đến đúng hẹn, vui lòng liên hệ tổng đài để dời
+            lịch.
+          </Text>
+          <Text style={styles.noteText}>
+            3. Vui lòng mang theo các kết quả xét nghiệm, đơn thuốc cũ (nếu có).
+          </Text>
         </View>
       </Page>
     </Document>
   );
-}
+};

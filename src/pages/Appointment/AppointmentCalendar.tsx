@@ -2,7 +2,7 @@ import { Badge, Calendar, Popover, Spin } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";
 import { useAppointmentCalendar } from "../../hooks/useAppointmentCalendar";
-import type { AppointmentCalendarResponse } from "../../types/appointment.type";
+import type { AppointmentResponse } from "../../types/appointment.type";
 import {
   getAppointmentStatusUI,
   getPrimaryActionLabel,
@@ -11,7 +11,7 @@ import { useAppointmentStatus } from "../../hooks/useAppointmentStatus";
 import { AppointmentStatus } from "./appointment-status";
 import {
   checkMedicalRecord,
-  createMedicalRecord,
+  createMedicalRecordApi,
 } from "../../services/medical-record.service";
 import { useNavigate } from "react-router-dom";
 
@@ -37,26 +37,28 @@ export const AppointmentCalendar = ({
     end_time: endOfMonth,
   });
 
-  const appointments = data?.data || [];
+  const appointments: AppointmentResponse[] = data?.data ?? [];
   const updateAppointmentStatus = useAppointmentStatus("calendar");
 
-  const handlePrimaryAction = async (event: AppointmentCalendarResponse) => {
-    const { appointment_id, doctor_id, patients, status } = event;
+  const handlePrimaryAction = async (event: AppointmentResponse) => {
+    const {  status, appointmentId } = event;
 
     // 1. COMPLETED → chỉ xem hồ sơ
     if (status === AppointmentStatus.COMPLETED) {
-      const { data: existingRecord } = await checkMedicalRecord(appointment_id);
-      if (existingRecord) {
-        navigate(`/doctor/medical-records/${existingRecord.record_id}`);
+      const res = await checkMedicalRecord(appointmentId);
+      if (res.status === "success") {
+        navigate(`/doctor/medical-records/${res.data}`);
       }
       return;
     }
 
     // 2. EXAMINING → hoàn thành khám
     if (status === AppointmentStatus.EXAMINING) {
-      const { data: existingRecord } = await checkMedicalRecord(appointment_id);
-      if (existingRecord) {
-        navigate(`/doctor/medical-records/${existingRecord.record_id}`);
+
+      const res = await checkMedicalRecord(appointmentId);
+
+      if (res.status === "success") {
+        navigate(`/doctor/medical-records/${res.data}`);
       }
       return;
     }
@@ -64,27 +66,23 @@ export const AppointmentCalendar = ({
     // 3. CHECKED_IN → bắt đầu khám (tạo hồ sơ)
     if (status === AppointmentStatus.CHECKED_IN) {
       // check đã có record chưa (tránh tạo trùng)
-      const { data: existingRecord } = await checkMedicalRecord(appointment_id);
+      const res1 = await checkMedicalRecord(appointmentId);
 
-      if (existingRecord) {
-        navigate(`/doctor/medical-records/${existingRecord.record_id}`);
+      if (res1.status === "success") {
+        navigate(`/doctor/medical-records/${res1.data}`);
         return;
       }
 
-      // tạo mới
-      const { data: newRecord } = await createMedicalRecord({
-        appointment_id,
-        doctor_id,
-        patient_id: patients.id,
-      });
+      // tạo mới hồ sơ bệnh lý
+      const res2 = await createMedicalRecordApi(appointmentId);
 
-      if (newRecord) {
+      if (res2.status === "success") {
         updateAppointmentStatus.mutate({
-          appointment_id,
+          appointmentId: appointmentId,
           status: AppointmentStatus.EXAMINING,
         });
 
-        navigate(`/doctor/medical-records/${newRecord.record_id}`);
+        navigate(`/doctor/medical-records/${res2.data}`);
       }
 
       return;
@@ -93,27 +91,27 @@ export const AppointmentCalendar = ({
     // 4. SCHEDULED → check-in
     if (status === AppointmentStatus.SCHEDULED) {
       updateAppointmentStatus.mutate({
-        appointment_id,
+        appointmentId: appointmentId,
         status: AppointmentStatus.CHECKED_IN,
       });
       return;
     }
   };
 
-  const handleCancel = async (event: AppointmentCalendarResponse) => {
+  const handleCancel = async (event: AppointmentResponse) => {
     updateAppointmentStatus.mutate({
-      appointment_id: event.appointment_id,
+      appointmentId: event.appointmentId,
       status: AppointmentStatus.CANCELLED,
     });
   };
 
   const getEventsForDay = (date: Dayjs) => {
     return appointments.filter((item) =>
-      dayjs(item.start_time).isSame(date, "day"),
+      dayjs(item.startTime).isSame(date, "day"),
     );
   };
 
-  const renderPopoverContent = (event: AppointmentCalendarResponse) => {
+  const renderPopoverContent = (event: AppointmentResponse) => {
     const statusUI = getAppointmentStatusUI(event.status);
 
     return (
@@ -121,7 +119,7 @@ export const AppointmentCalendar = ({
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
           <span className="font-semibold text-blue-600 text-[16px]">
-            {dayjs(event.start_time).format("HH:mm")}
+            {dayjs(event.startTime).format("HH:mm")}
           </span>
 
           <span
@@ -138,14 +136,14 @@ export const AppointmentCalendar = ({
           <div className="flex">
             <span className="text-gray-400 w-[90px]">Bệnh nhân:</span>
             <span className="font-medium text-gray-800">
-              {event.patients?.full_name}
+              {event.patientName}
             </span>
           </div>
 
           <div className="flex">
             <span className="text-gray-400 w-[90px]">SĐT:</span>
             <span className="text-gray-700">
-              {event.patients?.phone_number || "N/A"}
+              {event.phoneNumber || "N/A"}
             </span>
           </div>
 
@@ -159,13 +157,13 @@ export const AppointmentCalendar = ({
           <div className="flex">
             <span className="text-gray-400 w-[90px]">Phòng khám:</span>
             <span className="italic text-gray-600">
-              {event.rooms?.room_name || "Không có"}
+              {event.roomName || "Không có"}
             </span>
           </div>
         </div>
 
         {/* Actions (Doctor only) */}
-        {role === "doctor" && (
+        {role === "DOCTOR" && (
           <div className="flex gap-2 mt-4">
             {getPrimaryActionLabel(event.status) && (
               <button
@@ -212,7 +210,7 @@ export const AppointmentCalendar = ({
     return (
       <ul className="m-0 p-0 list-none space-y-1">
         {events.map((event) => (
-          <li key={event.appointment_id}>
+          <li key={event.appointmentId}>
             <Popover
               content={() => renderPopoverContent(event)}
               title={
@@ -242,9 +240,9 @@ export const AppointmentCalendar = ({
                   }
                   text={
                     <span className="text-[13px] text-gray-700">
-                      {dayjs(event.start_time).format("HH:mm")} -{" "}
+                      {dayjs(event.startTime).format("HH:mm")} -{" "}
                       <span className="font-medium">
-                        {event.patients.full_name ?? ""}
+                        {event.patientName ?? ""}
                       </span>
                     </span>
                   }

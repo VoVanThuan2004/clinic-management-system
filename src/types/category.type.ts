@@ -6,6 +6,6 @@ export type Category = {
 };
 
 export type CategoryOption = {
-  category_id: string;
-  category_name: string;
+  categoryId: string;
+  categoryName: string;
 };

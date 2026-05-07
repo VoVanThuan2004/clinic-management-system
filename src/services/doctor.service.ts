@@ -1,7 +1,10 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
+import type { ApiResponse } from "../types/api.response";
 import type {
   CreateDoctorParams,
   Doctor,
+  DoctorOption,
   DoctorResponse,
   UpdateDoctorParams,
 } from "../types/doctor.type";
@@ -37,6 +40,26 @@ export const selectDoctor = async (props: Props) => {
   }
 
   return await query.returns<Doctor[]>();
+};
+
+export const selectDoctorApi = async (props: Props) => {
+  const { searchDoctor } = props;
+
+  const queryParam: Record<string, any> = {
+    search: null,
+  };
+
+  if (searchDoctor && searchDoctor != "") {
+    queryParam.search = searchDoctor;
+  }
+
+  const res = await axiosClient.get<ApiResponse<DoctorOption[]>>(
+    "/v1/users/doctors/select",
+    {
+      params: queryParam,
+    },
+  );
+  return res.data;
 };
 
 // Lấy danh sách bác sĩ
@@ -196,7 +219,7 @@ export const updateDoctor = async (params: UpdateDoctorParams) => {
     .update({
       specialty,
       experience_years,
-      biography
+      biography,
     })
     .eq("id", data.id);
 

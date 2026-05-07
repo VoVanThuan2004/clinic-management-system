@@ -5,11 +5,11 @@ import { EmployeePage } from "./EmployeePage";
 export const AppointmentPage = () => {
     const rolenName = useAuthStore((state) => state.user?.roleName);
 
-    if (rolenName === "doctor") {
+    if (rolenName === "DOCTOR") {
         return <DoctorPage />
     }
 
-    if (rolenName === "employee" || rolenName === "admin") {
+    if (rolenName === "EMPLOYEE" || rolenName === "ADMIN") {
         return <EmployeePage />
     }
 }

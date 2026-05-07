@@ -11,7 +11,9 @@ export const useRoomOption = () => {
       try {
         const res = await getAllRoomsAvailable();
 
-        setRooms(res.data ?? null);
+        if (res.status === "success") {
+          setRooms(res.data ?? null)
+        }
       } catch (error) {
         console.log(error);
       } finally {

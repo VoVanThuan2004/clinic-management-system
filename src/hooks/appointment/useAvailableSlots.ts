@@ -22,7 +22,7 @@ export const useAvailableSlots = ({
     const fetchSlots = async () => {
       setLoading(true);
 
-      const { data } = await getBookedSlotsApi({
+      const res = await getBookedSlotsApi({
         doctorId,
         roomId,
         date,
@@ -30,7 +30,7 @@ export const useAvailableSlots = ({
 
       const result = generateAvailableSlots({
         date,
-        booked: data || [],
+        booked: res.data || [],
         expectedDuration: duration,
       });
 

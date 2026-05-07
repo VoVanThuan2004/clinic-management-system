@@ -1,4 +1,6 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
+import type { ApiResponse, PageResponse } from "../types/api.response";
 import type {
   MedicalRecordDetail,
   MedicalRecordPDF,
@@ -6,72 +8,47 @@ import type {
 
 // API kiểm tra medical record của bệnh nhân theo lịch hẹn có tồn tại chưa
 export const checkMedicalRecord = async (appointment_id: string) => {
-  return await supabase
-    .from("medical_records")
-    .select("record_id")
-    .eq("appointment_id", appointment_id)
-    .single();
+  const res = await axiosClient.get<ApiResponse>(
+    `/v1/medical-records/check?appointmentId=${appointment_id}`
+  );
+  return res.data;
 };
 
 // API tạo mới medical record
-export const createMedicalRecord = async ({
-  appointment_id,
-  doctor_id,
-  patient_id,
-}: {
-  appointment_id: string;
-  doctor_id: string;
-  patient_id: string;
-}) => {
-  return await supabase
-    .from("medical_records")
-    .insert({ appointment_id, doctor_id, patient_id })
-    .select("record_id")
-    .single();
+export const createMedicalRecordApi = async (appointmentId: string) => {
+  const res = await axiosClient.post<ApiResponse>(
+    "/v1/medical-records",
+    {
+      appointmentId
+    }
+  );
+  return res.data;
 };
 
 // Api lấy chi tiết medical record
 export const getMedicalRecordDetails = async (recordId: string) => {
-  const { data, error } = await supabase
-    .from("medical_records")
-    .select(
-      `
-      record_id,
-      appointment_id,
-      symptoms,
-      diagnosis,
-      notes,
-      payment_status,
-      created_at,
-      profiles:doctor_id (id, fullname), 
-      patients:patient_id (id, full_name, phone_number, gender, date_of_birth),
-      files (file_id, file_url, file_type)
-    `,
-    )
-    .eq("record_id", recordId)
-    .single();
-
-  if (error) throw error;
-
-  // Ép kiểu data về MedicalRecordDetail để xóa bỏ định dạng mảng giả
-  return { data: data as unknown as MedicalRecordDetail };
+  const res = await axiosClient.get<ApiResponse<MedicalRecordDetail>>(
+    `/v1/medical-records/${recordId}`
+  );
+  return res.data;
 };
 
 // Api lưu thông tin khám
-export const saveMedicalInfo = async (
+export const saveMedicalInfoApi = async (
   recordId: string,
   symptoms: string,
   diagnosis: string,
   notes: string,
 ) => {
-  return await supabase
-    .from("medical_records")
-    .update({
+  const res = await axiosClient.put<ApiResponse>(
+    `/v1/medical-records/${recordId}`,
+    {
       symptoms,
       diagnosis,
-      notes,
-    })
-    .eq("record_id", recordId);
+      notes
+    }
+  );
+  return res.data;
 };
 
 // Api lấy danh sách medical records
@@ -83,54 +60,24 @@ export const getMedicalRecords = async (params: {
   paymentStatus?: boolean | null;
 }) => {
   const { search, page, pageSize, doctorId, paymentStatus } = params;
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
 
-  let query = supabase
-    .from("medical_records")
-    .select(
-      `
-          record_id,
-          symptoms,
-          diagnosis,
-          notes,
-          payment_status,
-          patients!inner (
-            full_name,
-            phone_number
-          ),
-          profiles (
-            fullname,
-            avatarurl
-          )
-        `,
-    )
-    .range(from, to)
-    .order("created_at", { ascending: false });
+  const queryParams: Record<string, any> = {
+    page,
+    size: pageSize,
+  };
+  
+  if (search) queryParams.search = search;
+  if (doctorId) queryParams.doctorId = doctorId;
+  if (paymentStatus !== undefined && paymentStatus !== null) queryParams.paymentStatus = paymentStatus;
 
-  if (doctorId) {
-    query = query.eq("doctor_id", doctorId);
-  }
+  const res = await axiosClient.get<ApiResponse<PageResponse<MedicalRecordDetail>>>(
+    "/v1/medical-records",
+    {
+      params: queryParams,
+    }
+  );
 
-  if (search) {
-    query = query.ilike("patients.full_name", `%${search}%`);
-  }
-
-  if (paymentStatus === true) {
-    query = query.eq("payment_status", paymentStatus);
-  }
-
-  if (paymentStatus === false) {
-    query = query.eq("payment_status", paymentStatus);
-  }
-
-  const res = await query;
-
-  return res.data?.map((item) => ({
-    ...item,
-    patients: Array.isArray(item.patients) ? item.patients[0] : item.patients,
-    profiles: Array.isArray(item.profiles) ? item.profiles[0] : item.profiles,
-  }));
+  return res.data;
 };
 
 // Api xác nhận thanh toán medical record

@@ -41,7 +41,7 @@ axiosClient.interceptors.response.use(
     const originalRequest = error.config;
 
     // Tránh loop vô hạn khi refresh token cũng bị lỗi
-    if (originalRequest.url?.includes("/auth/refreshToken")) {
+    if (originalRequest.url?.includes("/v1/refresh-token")) {
       tokenStorage.clear();
       window.location.href = "/login";
       return Promise.reject(error);
@@ -61,7 +61,7 @@ axiosClient.interceptors.response.use(
           // console.error("Forbidden:", data?.message || "Access denied");
           message.error("You are not accessed into this resource");
           tokenStorage.clear();
-          window.location.href = "/login";
+          window.location.href = "/";
           break;
         case 404:
           // console.error("Not Found:", data?.message || "Resource not found");

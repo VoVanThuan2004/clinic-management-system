@@ -37,8 +37,8 @@ export const EmployeePage = () => {
   });
 
   const mappedDoctors = doctors.map((doctor) => ({
-    label: `${doctor.fullname} - ${doctor.doctor_details.specialty}`,
-    value: doctor.id,
+    label: `${doctor.doctorName} - ${doctor.specialty}`,
+    value: doctor.doctorId,
   }));
 
   // State quản lý toggle giữa 2 view list và calendar

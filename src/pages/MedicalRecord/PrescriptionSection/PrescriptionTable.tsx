@@ -8,7 +8,6 @@ import { Button, Spin } from "antd";
 import { useDeletePrescriptionItem } from "../../../hooks/prescription/useDeletePrescriptionItem";
 import { useUpdateQuantity } from "../../../hooks/prescription/useUpdateQuantity";
 import { useUpdateDosage } from "../../../hooks/prescription/useUpdateDosage";
-import { useGetServiceFee } from "../../../hooks/medical-service/useGetServiceFee";
 
 type Props = {
   recordId: string;
@@ -21,15 +20,14 @@ export const PrescriptionTable = (props: Props) => {
 
   // Gọi hook api lấy toa thuốc của record
   const { data: prescription, isLoading } = usePrescription(recordId);
-  const data = prescription?.data?.prescription_items || [];
-  const prescriptionId = prescription?.data?.prescription_id;
+  const data = prescription?.data;
+  const prescriptionId = prescription?.data?.prescriptionId;
 
-  // Gọi hook api lấy tiền chi phí dịch vụ khám
-  const { serviceFeeData } = useGetServiceFee(recordId);
-  const totalServiceFee = serviceFeeData?.price || 0;
-  const serviceName = serviceFeeData?.service_name;
+  const totalServiceFee = prescription?.data?.serviceFee || 0;
+  const serviceName = prescription?.data?.serviceName || "";
 
-  const medicineTotal = data.reduce((t, i) => t + i.price * i.quantity, 0);
+  const medicineTotal =
+    data?.items?.reduce((t, i) => t + i.price * i.quantity, 0) || 0;
   const grandTotal = medicineTotal + totalServiceFee;
 
   // Gọi hook api tạo toa thuốc
@@ -127,15 +125,15 @@ export const PrescriptionTable = (props: Props) => {
 
           {/* List Items */}
           <div className="flex-1 overflow-y-auto max-h-[350px]">
-            {data.length === 0 ? (
+            {data?.items?.length === 0 ? (
               <div className="py-10 flex flex-col items-center">
                 <p className="text-sm text-gray-400">Toa thuốc còn trống</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
-                {data.map((item) => (
+                {data?.items?.map((item) => (
                   <PrescriptionItem
-                    key={item.item_id}
+                    key={item.itemId}
                     item={item}
                     payment_status={payment_status}
                     onDelete={onDelete}
@@ -159,17 +157,13 @@ export const PrescriptionTable = (props: Props) => {
             </div>
 
             {/* Phí dịch vụ */}
-            {serviceFeeData && (
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">
-                  Dịch vụ khám: {serviceName}
-                </span>
-                <span className="font-medium text-gray-800">
-                  {totalServiceFee.toLocaleString()}
-                  <span className="text-xs ml-0.5 underline">đ</span>
-                </span>
-              </div>
-            )}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">Dịch vụ khám: {serviceName}</span>
+              <span className="font-medium text-gray-800">
+                {totalServiceFee.toLocaleString()}
+                <span className="text-xs ml-0.5 underline">đ</span>
+              </span>
+            </div>
           </div>
 
           {/* Footer: Tổng tiền */}
@@ -177,7 +171,7 @@ export const PrescriptionTable = (props: Props) => {
             <span className="text-gray-400 text-sm italic">
               Ngày kê đơn:{" "}
               {new Date(
-                prescription.data?.created_at as string,
+                prescription?.data?.createdAt as string,
               ).toLocaleDateString("vi-VN")}
             </span>
 
@@ -196,7 +190,7 @@ export const PrescriptionTable = (props: Props) => {
       <MedicineModal
         isOpen={isOpen}
         onClose={onClose}
-        prescriptionId={prescription?.data?.prescription_id as string}
+        prescriptionId={prescription?.data?.prescriptionId as string}
       />
     </div>
   );

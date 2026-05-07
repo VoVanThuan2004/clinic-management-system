@@ -4,8 +4,7 @@ import { MedicalInfoForm } from "./MedicalInfoForm";
 import { PrescriptionTable } from "./PrescriptionSection/PrescriptionTable";
 import { useMedicalRecordDetails } from "../../hooks/medical-record/useMedicalRecordDetails";
 import { useState } from "react";
-import { message } from "antd";
-import { saveMedicalInfo } from "../../services/medical-record.service";
+import { saveMedicalInfoApi } from "../../services/medical-record.service";
 import { ChevronLeft } from "lucide-react";
 
 export const MedicalRecordDetail = () => {
@@ -34,11 +33,7 @@ export const MedicalRecordDetail = () => {
 
     setSaveLoading(true);
     try {
-      await saveMedicalInfo(record_id as string, symptoms, diagnosis, notes)      
-    } catch (error) {
-      message.error("Lỗi khi lưu thông tin khám: ");
-      console.log(error);
-      
+      await saveMedicalInfoApi(record_id as string, symptoms, diagnosis, notes)      
     } finally {
       setSaveLoading(false);
     }
@@ -63,16 +58,20 @@ export const MedicalRecordDetail = () => {
             <span>
               Bệnh nhân:
               <span className="ml-1 font-medium text-gray-700">
-                {medicalRecord?.patients.full_name}
+                {medicalRecord?.patientName}
               </span>
             </span>
 
-            <span className="text-gray-400">•</span>
-
+             <span>
+              Giới tính:
+              <span className="ml-1 font-medium text-gray-700">
+                {medicalRecord?.gender === 1 ? "Nam" : medicalRecord?.gender === 0 ? "Nữ" : "Khác"}
+              </span>
+            </span>
             <span>
               SĐT:
               <span className="ml-1 font-medium text-gray-700">
-                {medicalRecord?.patients.phone_number}
+                {medicalRecord?.phoneNumber}
               </span>
             </span>
           </div>
@@ -85,13 +84,13 @@ export const MedicalRecordDetail = () => {
             symptoms={medicalRecord?.symptoms || null}
             diagnosis={medicalRecord?.diagnosis || null}
             notes={medicalRecord?.notes || null}
-            payment_status={medicalRecord?.payment_status || false}
+            payment_status={medicalRecord?.paymentStatus || false}
             isLoading={isLoading || saveLoading}
             onSaveMedicalInfo={onSaveMedicalInfo}
           />
           <PrescriptionTable 
             recordId={record_id as string} 
-            payment_status={medicalRecord?.payment_status}
+            payment_status={medicalRecord?.paymentStatus}
           />
         </div>
 
@@ -99,7 +98,7 @@ export const MedicalRecordDetail = () => {
         <div className="col-span-12 lg:col-span-4">
           <FileUploadSection 
             recordId={record_id as string} 
-            payment_status={medicalRecord?.payment_status || false}
+            payment_status={medicalRecord?.paymentStatus || false}
           />
         </div>
       </div>

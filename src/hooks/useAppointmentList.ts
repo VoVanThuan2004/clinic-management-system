@@ -7,7 +7,7 @@ export const useAppointmentList = (params: {
   pageSize: number;
   search?: string;
   date?: Dayjs | null;
-  doctor_id?: string;
+  doctorId?: string;
 }) => {
   return useQuery({
     queryFn: () => getAppointmentList(params),

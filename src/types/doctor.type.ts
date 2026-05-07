@@ -10,6 +10,12 @@ export type Doctor = {
   };
 };
 
+export type DoctorOption = {
+  doctorId: string;
+  doctorName: string;
+  specialty: string;
+}
+
 export type DoctorResponse = {
   id: string;
   fullname: string;

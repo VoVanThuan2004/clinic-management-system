@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getAppointmentDetail } from "../../services/appointment.service";
 import type { AppointmentDetail } from "../../types/appointment.type";
+import { getAppointmentDetail } from "../../services/appointment.service";
 
 export const useAppointmentDetail = (appointmentId: string) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,30 +11,26 @@ export const useAppointmentDetail = (appointmentId: string) => {
       if (!appointmentId) return;
       setIsLoading(true);
       try {
-        const appointmentDetail = await getAppointmentDetail(appointmentId);
+        const res = await getAppointmentDetail(appointmentId);
 
+        const appointment = res.data;
         setAppointment({
-          appointment_id: appointmentDetail.data?.appointment_id,
-          status: appointmentDetail.data?.status,
-          start_time: appointmentDetail.data?.start_time,
-          duration_minutes: appointmentDetail.data?.duration_minutes,
-          reason: appointmentDetail.data?.reason,
-          service_id: appointmentDetail.data?.service_id,
-          room_id: appointmentDetail.data?.room_id,
-          patients: appointmentDetail.data?.patients,
-          employee: {
-            fullname: appointmentDetail.data?.employee.fullname
-          },
-          doctor: appointmentDetail.data?.doctor,
-          rooms: {
-            room_name: appointmentDetail.data?.rooms.room_name
-          },
-          services: {
-            service_name: appointmentDetail.data?.services.service_name
-          }
+          appointmentId: appointment?.appointmentId as string,
+          patientId: appointment?.patientId as string,
+          doctorId: appointment?.doctorId as string,
+          employeeId: appointment?.employeeId as string,
+          roomId: appointment?.roomId as string,
+          serviceId: appointment?.serviceId as string,
+          startTime: appointment?.startTime as string,
+          durationMinutes: appointment?.durationMinutes as number,
+          reason: appointment?.reason as string,
+          patientCode: appointment?.patientCode as string,
+          patientName: appointment?.patientName as string,
+          phoneNumber: appointment?.phoneNumber as string,
+          gender: appointment?.gender as number,
+          dateOfBirth: appointment?.dateOfBirth as string,
+          address: appointment?.address as string,
         });
-      } catch (error) {
-        console.log(error);
       } finally {
         setIsLoading(false);
       }

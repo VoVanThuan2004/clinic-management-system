@@ -19,7 +19,7 @@ export const DoctorPage = () => {
   const [debouncedSearchPatient] = useDebounce(searchPatient, 500);
 
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
   const [loadingPdfId, setLoadingPdfId] = useState<string | null>(null);
@@ -32,14 +32,18 @@ export const DoctorPage = () => {
     search: debouncedSearchPatient,
     doctorId: userId
   });
-  const mappedData = (data ?? []).map((item) => ({
-    record_id: item.record_id,
-    full_name: item.patients.full_name,
-    doctor_name: item.profiles.fullname,
+  const mappedData = (data?.data?.content ?? []).map((item) => ({
+    medicalRecordId: item.medicalRecordId,
+    patientName: item.patientName,
+    gender: item.gender,
+    dateOfBirth: item.dateOfBirth,
+    address: item.address,
+    phoneNumber: item.phoneNumber,
+    doctorName: item.doctorName,
     symptoms: item.symptoms,
     diagnosis: item.diagnosis,
     notes: item.notes,
-    payment_status: item.payment_status,
+    paymentStatus: item.paymentStatus,
   }));
 
   // Hàm xem chi tiết medical record
@@ -92,11 +96,11 @@ export const DoctorPage = () => {
         isLoading={isLoading}
         data={mappedData}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
           total: mappedData.length,
           onChange: (page: number, pageSize: number) => {
-            setPagination({ current: page, pageSize });
+            setPagination({ current: page - 1, pageSize });
           },
         }}
         onView={onViewMedicalRecordDetail}

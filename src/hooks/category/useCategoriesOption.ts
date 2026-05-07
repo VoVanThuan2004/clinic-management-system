@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCategoriesOption } from "../../services/category.service";
+import { getCategoriesOptionApi } from "../../services/category.service";
 import type { CategoryOption } from "../../types/category.type";
 
 type Props = {
@@ -16,9 +16,9 @@ export const useCategoriesOption = (props: Props) => {
     const fetchCategories = async () => {
       setIsLoading(true);
       try {
-        const res = await getCategoriesOption(search);
+        const res = await getCategoriesOptionApi();
 
-        setCategories(res.data as CategoryOption[]);
+        setCategories(res.data || []);
       } catch (error) {
         console.log(error);
         setCategories([]);

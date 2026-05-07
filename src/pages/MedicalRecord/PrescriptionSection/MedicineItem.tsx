@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import type { Medicine } from "../../../types/medicine.type";
 import { useAddPrescriptionItem } from "../../../hooks/prescription/useAddPrescriptionItem";
+import { formatCurrency } from "../../../utils/formatCurrency";
 
 type Props = {
   medicine: Medicine;
@@ -16,13 +17,9 @@ export const MedicineItem = (props: Props) => {
 
   const onAddMedicineToPrescription = (medicine: Medicine) => {
     addPrescriptionItemMutation.mutate({
-      prescription_id: prescriptionId,
-      medicine_id: medicine.medicine_id,
-      medicine_name: medicine.medicine_name,
-      image_url: medicine.image,
-      price: medicine.selling_price,
-      quantity: quantity,
-      dosage: "",
+      prescriptionId,
+      medicineId: medicine.medicineId,
+      quantity,
     });
   };
 
@@ -54,15 +51,15 @@ export const MedicineItem = (props: Props) => {
       </div>
 
       {/* Tên thuốc */}
-      <h3 className="text-[17px] font-medium mt-2">{medicine.medicine_name}</h3>
+      <h3 className="text-[17px] font-medium mt-2">{medicine.medicineName}</h3>
 
       {/* Giá + tồn kho */}
       <div className="flex justify-between items-center mt-2">
         <span className="text-lg font-bold text-blue-600">
-          {medicine.selling_price}đ
+          {formatCurrency(medicine.sellingPrice)}
         </span>
         <span className="text-sm text-gray-500">
-          Tồn kho: {medicine.stock_quantity} viên
+          Tồn kho: {medicine.stockQuantity} viên
         </span>
       </div>
 

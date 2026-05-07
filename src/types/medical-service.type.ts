@@ -1,7 +1,7 @@
 
 export type MedicalServiceOption = {
-    service_id: string;
-    service_name: string;
+    serviceId: string;
+    serviceName: string;
 }
 
 export type MedicalService = {

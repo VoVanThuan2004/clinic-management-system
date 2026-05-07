@@ -1,17 +1,12 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
-import type { UpdateRoomParams } from "../types/room.type";
+import type { ApiResponse } from "../types/api.response";
+import type { Room, UpdateRoomParams } from "../types/room.type";
 
 // Lấy danh sách phòng trống
 export const getAllRoomsAvailable = async () => {
-  return await supabase
-    .from("rooms")
-    .select(
-      `
-            room_id,
-            room_name    
-        `,
-    )
-    .eq("is_active", true);
+  const res = await axiosClient.get<ApiResponse<Room[]>>("/v1/rooms/options");
+  return res.data;
 };
 
 // Lấy danh sách phòng quản lý bởi admin

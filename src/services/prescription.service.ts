@@ -1,69 +1,34 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
+import type { ApiResponse } from "../types/api.response";
 import type {
   Prescription,
   PrescriptionItemAdd,
 } from "../types/prescription.type";
 
 // Lấy danh sách thuốc đã kê trong prescription thuộc medical record
-export const getPrescriptionByRecordId = async (
-  recordId: string,
-): Promise<{
-  data: Prescription | null;
-  error: any;
-}> => {
-  return await supabase
-    .from("prescriptions")
-    .select(
-      `
-      prescription_id,
-      record_id,
-      created_at,
-      prescription_items (*)
-    `,
-    )
-    .eq("record_id", recordId)
-    .order("created_at", {
-      ascending: false,
-      foreignTable: "prescription_items",
-    })
-    .maybeSingle();
+export const getPrescriptionByRecordId = async (recordId: string) => {
+  const res = await axiosClient.get<ApiResponse<Prescription>>(
+    `/v1/prescriptions/${recordId}`,
+  );
+  return res.data;
 };
 
 // Tạo toa thuốc
 export const createPrescription = async (recordId: string) => {
-  return await supabase.from("prescriptions").insert({
-    record_id: recordId,
-  });
+ const res = await axiosClient.post<ApiResponse>(
+    "/v1/prescriptions",
+    {
+      medicalRecordId: recordId,
+    }
+  );
+  return res.data;
 };
 
 // Thêm thuốc vào toa
 export const addMedicineToPrescription = async (item: PrescriptionItemAdd) => {
-  // Kiểm tra thuốc này đã có trong toa thuốc chưa
-  // => Nếu có cộng quantity
-  // => Ngược lại thêm mới
-  const { data: existingItem } = await checkMedicineInPrescription(
-    item.prescription_id,
-    item.medicine_id,
-  );
-  if (existingItem) {
-    return await supabase
-      .from("prescription_items")
-      .update({
-        quantity: existingItem.quantity + item.quantity,
-      })
-      .eq("item_id", existingItem.item_id)
-      .select();
-  }
-
-  return await supabase.from("prescription_items").insert({
-    prescription_id: item.prescription_id,
-    medicine_id: item.medicine_id,
-    medicine_name: item.medicine_name,
-    price: item.price,
-    quantity: item.quantity,
-    dosage: item.dosage,
-    image_url: item.image_url,
-  });
+  const res = await axiosClient.post<ApiResponse>("/v1/items", item);
+  return res.data;
 };
 
 // Kiểm tra thuốc có trong toa thuốc hiện tại không
@@ -81,10 +46,8 @@ export const checkMedicineInPrescription = async (
 
 // Xóa thuốc ra khỏi toa
 export const deletePrescriptionItem = async (itemId: string) => {
-  return await supabase
-    .from("prescription_items")
-    .delete()
-    .eq("item_id", itemId);
+  const res = await axiosClient.delete<ApiResponse>(`/v1/items/${itemId}`);
+  return res.data;
 };
 
 // Cập nhật số lượng thuốc trong toa thuốc
@@ -92,12 +55,10 @@ export const updateQuantityItem = async (
   itemId: string,
   newQuantity: number,
 ) => {
-  return await supabase
-    .from("prescription_items")
-    .update({
-      quantity: newQuantity,
-    })
-    .eq("item_id", itemId);
+  const res = await axiosClient.put<ApiResponse>(
+    `/v1/items/${itemId}/quantity?newQuantity=${newQuantity}`
+  );
+  return res.data;
 };
 
 // Cập nhật liều lượng trong prescription item
@@ -105,12 +66,8 @@ export const updateDosagePrescriptionItem = async (
   itemId: string,
   dosage: string,
 ) => {
-  return await supabase
-    .from("prescription_items")
-    .update({
-      dosage: dosage,
-    })
-    .eq("item_id", itemId);
+  const res = await axiosClient.put<ApiResponse>(
+    `/v1/items/${itemId}/dosage?dosage=${encodeURIComponent(dosage)}`
+  );
+  return res.data;
 };
-
-

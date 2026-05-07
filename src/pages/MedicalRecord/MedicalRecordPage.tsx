@@ -5,13 +5,13 @@ import { EmployeePage } from "./EmployeePage";
 export const MedicalRecordPage = () => {
   const rolenName = useAuthStore((state) => state.user?.roleName);
 
-  if (rolenName === "employee") {
+  if (rolenName === "EMPLOYEE") {
     return <EmployeePage />;
   }
-  if (rolenName === "admin") {
+  if (rolenName === "ADMIN") {
     return <EmployeePage />;
   }
-  if (rolenName === "doctor") {
+  if (rolenName === "DOCTOR") {
     return <DoctorPage />;
   }
 };

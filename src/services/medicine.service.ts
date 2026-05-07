@@ -1,6 +1,9 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
+import type { ApiResponse, PageResponse } from "../types/api.response";
 import type {
   AddMedicineParams,
+  Medicine,
   UpdateMedicineParams,
 } from "../types/medicine.type";
 
@@ -13,39 +16,27 @@ type Props = {
 
 export const getMedicinesByCategory = async (props: Props) => {
   const { category_id, page, pageSize, search } = props;
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
 
-  if (category_id === "all" || !category_id) {
-    let query = supabase
-      .from("medicines")
-      .select(
-        "medicine_id, medicine_name, unit, original_price, selling_price, stock_quantity, image, description, category_id, status",
-        { count: "exact" }, // Đếm tổng số record
-      )
-      .range(from, to)
-      .order("created_at", { ascending: false });
+  const queryParams: Record<string, any> = {
+    page: page,
+    size: pageSize,
+  };
 
-    if (search) {
-      query = query.ilike("medicine_name", `%${search}%`);
-    }
-
-    return await query;
+  if (category_id !== "all") {
+    queryParams.categoryId = category_id;
   }
-  let query = supabase
-    .from("medicines")
-    .select(
-      "medicine_id, medicine_name, unit, original_price, selling_price, stock_quantity, image, description, status",
-      { count: "exact" }, // Đếm tổng số record
-    )
-    .eq("category_id", category_id)
-    .range(from, to)
-    .order("created_at", { ascending: false });
 
   if (search) {
-    query = query.ilike("medicine_name", `%${search}%`);
+    queryParams.search = search;
   }
-  return await query;
+  
+  const res = await axiosClient.get<ApiResponse<PageResponse<Medicine>>>(
+    "/v1/medicines",
+    {
+      params: queryParams
+    }
+  )
+  return res.data;
 };
 
 // Api thêm thuốc

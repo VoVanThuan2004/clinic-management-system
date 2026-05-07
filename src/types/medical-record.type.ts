@@ -1,22 +1,15 @@
 export interface MedicalRecordDetail {
-  record_id: string;
-  appointment_id: string;
+  medicalRecordId: string;
   symptoms: string | null;
   diagnosis: string | null;
   notes: string | null;
-  payment_status: boolean;
-  created_at: string;
-  profiles: {
-    id: string;
-    fullname: string;
-  };
-  patients: {
-    id: string;
-    full_name: string;
-    phone_number: string;
-    gender?: number;
-    date_of_birth?: string;
-  };
+  paymentStatus: boolean;
+  doctorName: string;
+  patientName: string;
+  phoneNumber: string;
+  gender: number;
+  dateOfBirth: string;
+  address: string;
 }
 
 export interface MedicalRecord {
@@ -38,9 +31,9 @@ export interface MedicalRecord {
 }
 
 export interface FileRecord {
-  file_id: string;
-  file_url: string;
-  file_type: string;
+  fileId: string;
+  fileUrl: string;
+  fileType: string;
 }
 
 export interface MedicalRecordPDF {

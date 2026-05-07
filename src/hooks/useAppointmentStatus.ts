@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateAppointmentStatus } from "../services/appointment.service";
-import { message } from "antd";
 
 type Props = {
-  appointment_id: string;
+  appointmentId: string;
   status: string;
 };
 
@@ -12,7 +11,7 @@ export const useAppointmentStatus = (type: string) => {
   return useMutation({
     mutationFn: (props: Props) =>
       updateAppointmentStatus({
-        appointment_id: props.appointment_id,
+        appointmentId: props.appointmentId,
         status: props.status,
       }),
     onSuccess: () => {
@@ -23,9 +22,5 @@ export const useAppointmentStatus = (type: string) => {
         queryClient.invalidateQueries({ queryKey: ["appointment-list"] });
       }
     },
-    onError: (error) => {
-        console.log(error);
-        message.error("Cập nhật trạng thái lịch hẹn thất bại");
-    }
   });
 };

@@ -4,12 +4,12 @@ import { getAppointmentColumns } from "./get-appointment-columns";
 import { useAppointmentList } from "../../hooks/useAppointmentList";
 import type { Dayjs } from "dayjs";
 import { useAppointmentStatus } from "../../hooks/useAppointmentStatus";
-import { AppointmentModal } from "./AppointmentModal";
 import { message } from "antd";
-import { getAppointmentDetail } from "../../services/appointment.service";
+import { getAppointmentDetailPDF } from "../../services/appointment.service";
 import { pdf } from "@react-pdf/renderer";
 import { AppointmentPDF } from "./AppointmentPDF";
 import { saveAs } from "file-saver";
+import { AppointmentModal } from "./AppointmentModal";
 
 type Props = {
   debounceSearch?: string;
@@ -23,7 +23,7 @@ export const AppointmentTable = ({
   doctor_id,
 }: Props) => {
   const [pagination, setPagination] = useState({
-    current: 1,
+    current:0,
     pageSize: 10,
   });
 
@@ -37,38 +37,24 @@ export const AppointmentTable = ({
     pageSize: pagination.pageSize,
     search: debounceSearch,
     date: date,
-    doctor_id: doctor_id,
+    doctorId: doctor_id,
   });
 
-  const mappedData = (data?.data ?? []).map((item) => ({
-    appointment_id: item.appointment_id,
-    start_time: item.start_time,
-
-    full_name: item.patients?.full_name || "",
-    phone_number: item.patients?.phone_number || "",
-    reason: item.reason,
-
-    doctor_name: item.profiles?.fullname || "",
-    avatarurl: item.profiles?.avatarurl || "",
-    room_name: item.rooms?.room_name || "",
-    service_name: item.services?.service_name || "",
-
-    status: item.status,
-  }));
+  const mappedData = data?.data?.content || [];  
 
   // Gọi hook api cập nhật status lịch hẹn
   const updateAppointmentStatus = useAppointmentStatus("list");
 
   const handleUpdateStatus = (appointmentId: string, status: string) => {
     updateAppointmentStatus.mutate({
-      appointment_id: appointmentId,
+      appointmentId: appointmentId,
       status: status,
     });
   };
 
   const openModalUpdate = (id: string) => {
     setAppointmentId(id);
-    setIsOpen(true);
+    setIsOpen(true);    
   };
 
   const onCloseModalUpdate = () => {
@@ -82,7 +68,7 @@ export const AppointmentTable = ({
     try {
       setLoadingPdfId(appointmentId);
 
-      const res = await getAppointmentDetail(appointmentId);
+      const res = await getAppointmentDetailPDF(appointmentId);
 
       if (!res.data) throw new Error("No data");
 
@@ -113,16 +99,16 @@ export const AppointmentTable = ({
         columns={columns}
         dataSource={mappedData || []}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
-          total: mappedData.length || 0,
+          total: data?.data?.totalElements || 0,
 
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
 
           onChange: (page, pageSize) => {
             setPagination({
-              current: page,
+              current: page - 1,
               pageSize: pageSize,
             });
           },

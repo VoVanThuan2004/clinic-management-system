@@ -20,7 +20,7 @@ export const EmployeePage = () => {
   const [doctorName, setDoctorName] = useState("");
 
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
 
@@ -46,8 +46,8 @@ export const EmployeePage = () => {
   });
 
   const mappedDoctors = doctors.map((doctor) => ({
-    label: `${doctor.fullname} - ${doctor.doctor_details.specialty}`,
-    value: doctor.id,
+    label: `${doctor.doctorName} - ${doctor.specialty}`,
+    value: doctor.doctorId,
   }));
 
   // ===================== //
@@ -60,14 +60,18 @@ export const EmployeePage = () => {
     doctorId,
     paymentStatus,
   });
-  const mappedData = (data ?? []).map((item) => ({
-    record_id: item.record_id,
-    full_name: item.patients.full_name,
-    doctor_name: item.profiles.fullname,
+  const mappedData = (data?.data?.content ?? []).map((item) => ({
+    medicalRecordId: item.medicalRecordId,
+    patientName: item.patientName,
+    gender: item.gender,
+    dateOfBirth: item.dateOfBirth,
+    address: item.address,
+    phoneNumber: item.phoneNumber,
+    doctorName: item.doctorName,
     symptoms: item.symptoms,
     diagnosis: item.diagnosis,
     notes: item.notes,
-    payment_status: item.payment_status,
+    paymentStatus: item.paymentStatus,
   }));
 
   // Gọi hook api xác nhận thanh toán
@@ -204,11 +208,11 @@ export const EmployeePage = () => {
         isLoading={isLoading}
         data={mappedData}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
           total: mappedData.length,
           onChange: (page: number, pageSize: number) => {
-            setPagination({ current: page, pageSize });
+            setPagination({ current: page - 1, pageSize });
           },
         }}
         onView={onViewMedicalRecordDetail}

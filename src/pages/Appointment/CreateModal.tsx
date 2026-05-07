@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { useDebounce } from "use-debounce";
 import { useDoctorOption } from "../../hooks/useDoctorOption";
 import type { Patient } from "../../types/patient.type";
-import type { Doctor } from "../../types/doctor.type";
+import type { DoctorOption } from "../../types/doctor.type";
 import { usePatientOption } from "../../hooks/usePatientOption";
 import { useCreateAppointment } from "../../hooks/useCreateAppointment";
 import { formatDate } from "../../utils/formatDate";
@@ -36,7 +36,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
 
   // State quản lý chọn bác sĩ
   const [searchDoctor, setSearchDoctor] = useState("");
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorOption | null>(null);
   const [debounceSearchDoctor] = useDebounce(searchDoctor, 500);
 
   // State quản lý chọn ngày khám
@@ -71,7 +71,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
 
   // Gọi hook api lấy thời gian trống cho lịch hẹn
   const { slots, loading } = useAvailableSlots({
-    doctorId: selectedDoctor?.id || "",
+    doctorId: selectedDoctor?.doctorId || "",
     roomId: selectedRoom || "",
     date: selectedDate || "",
     duration: durationMinutes as number,
@@ -97,9 +97,6 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
       // Validate toàn bộ form trước khi submit, lấy giá trị
       const values = await form.validateFields();
 
-      console.log("Appointments: ", values);
-      console.log("Duration minutes: ", durationMinutes);
-
       // Kiểm tra đã chọn slot thời gian khám chưa
       if (!selectedSlot) {
         message.error("Vui lòng chọn giờ khám!");
@@ -114,15 +111,14 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
       // Tạo lịch hẹn
       useCreateAppointmentMutation.mutate(
         {
-          doctor_id: values.doctor,
-          patient_id: values.patient,
-          start_time,
+          doctorId: values.doctor,
+          patientId: values.patient,
+          startTime: start_time,
           reason: values.reason,
-          service_id: values.service,
-          room_id: values.room,
-          duration_minutes: durationMinutes as number,
-          status: "scheduled",
-          employee_id: employee?.userId as string,
+          serviceId: values.service,
+          roomId: values.room,
+          durationMinutes: durationMinutes as number,
+          employeeId: employee?.userId as string,
         },
         {
           onSuccess: () => {
@@ -142,27 +138,27 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
 
   // mapping data trả về dạng label - value cho bệnh nhân
   const options = data.map((item) => ({
-    label: `${item.full_name} - ${item.phone_number}`,
-    value: item.id,
+    label: `${item.fullName} - ${item.phoneNumber}`,
+    value: item.patientId,
     patient: item, // lưu thông tin gốc của bệnh nhân để hiện thị sau khi chọn xong
   }));
 
   // mapping data trả về dạng label - value cho doctor
   const optionDoctors = doctors.map((item) => ({
-    label: `${item.fullname} - ${item.doctor_details.specialty}`,
-    value: item.id,
+    label: `${item.doctorName} - ${item.specialty}`,
+    value: item.doctorId,
     doctor: item,
   }));
 
   // mapping data trả về dạng label - value cho dịch vụ khám
   const optionMedicalServices = medicalServices?.map((item) => ({
-    label: item.service_name,
-    value: item.service_id,
-  }));
+    label: item.serviceName,
+    value: item.serviceId,
+  }));  
 
   const optionRooms = rooms?.map((item) => ({
-    label: item.room_name,
-    value: item.room_id,
+    label: item.roomName,
+    value: item.roomId,
   }));
 
   const handleClose = () => {
@@ -256,10 +252,10 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-[16px] font-semibold text-gray-800">
-                    {selectedPatient.full_name}
+                    {selectedPatient.fullName}
                   </h2>
                   <p className="text-xs text-gray-500">
-                    Mã BN: {selectedPatient.patient_code}
+                    Mã BN: {selectedPatient.patientCode}
                   </p>
                 </div>
                 <span className="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-lg">
@@ -272,7 +268,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
               <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
                 <div>
                   <p className="text-gray-500">SĐT</p>
-                  <p className="font-medium">{selectedPatient.phone_number}</p>
+                  <p className="font-medium">{selectedPatient.phoneNumber}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Giới tính</p>
@@ -283,7 +279,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
                 <div>
                   <p className="text-gray-500">Ngày sinh</p>
                   <p className="font-medium">
-                    {formatDate(selectedPatient.date_of_birth)}
+                    {formatDate(selectedPatient.dateOfBirth)}
                   </p>
                 </div>
                 <div>
