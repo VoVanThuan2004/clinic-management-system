@@ -18,7 +18,7 @@ export const EmployeePage = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("");
 
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
   const [searchValue, setSearchValue] = useState("");
@@ -31,7 +31,7 @@ export const EmployeePage = () => {
     search: debounceSearch,
   });
 
-  const mappedEmployees = data?.data as Employee[];
+  const mappedEmployees = data?.data?.content || [];
 
   const openUpdateModal = (employee: Employee) => {
     setSelectedEmployee(employee);
@@ -78,7 +78,7 @@ export const EmployeePage = () => {
   return (
     <div className="px-5 mt-5">
       {/* Nút thêm mới, import, export */}
-      <Toolbar onOpenAdd={openAddModal}/>
+      <Toolbar onOpenAdd={openAddModal} data={mappedEmployees}/>
 
       {/* Nút search  */}
       <Search
@@ -95,16 +95,16 @@ export const EmployeePage = () => {
         columns={columns}
         dataSource={mappedEmployees}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
-          total: data?.count || 0,
+          total: data?.data?.totalElements || 0,
 
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
 
           onChange: (page, pageSize) => {
             setPagination({
-              current: page,
+              current: page - 1,
               pageSize: pageSize,
             });
           },

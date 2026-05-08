@@ -56,11 +56,11 @@ export const ProfilePage = () => {
         id: userInfo?.userId as string,
         phonenumber: data.phonenumber,
         fullname: data.fullname,
-        avatar: previewFile as File || null,
+        avatar: (previewFile as File) || null,
       },
       {
-        onSuccess: () => {
-          message.success(useUpdateProfileMutate.data?.message || "Cập nhật thông tin thành công");
+        onSuccess: (dataResponse) => {
+          message.success(dataResponse.message);
 
           // Cập nhật lại state
           setSession({

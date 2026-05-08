@@ -20,7 +20,7 @@ export const DoctorPage = () => {
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
 
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
   const [searchValue, setSearchValue] = useState("");
@@ -33,7 +33,7 @@ export const DoctorPage = () => {
     search: debounceSearch,
   });
 
-  const mappedDoctors = data?.data as DoctorResponse[];
+  const mappedDoctors = data?.data?.content || [];
 
   const onOpenAddModal = () => {
     setIsOpenAdd(true);
@@ -75,7 +75,7 @@ export const DoctorPage = () => {
 
   return (
     <div className="px-5 mt-5">
-      <Toolbar onOpenAdd={onOpenAddModal} />
+      <Toolbar onOpenAdd={onOpenAddModal} data={mappedDoctors}/>
 
       {/* Nút search  */}
       <Search
@@ -93,16 +93,16 @@ export const DoctorPage = () => {
         dataSource={mappedDoctors}
         scroll={{ x: "max-content" }}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
-          total: data?.count || 0,
+          total: data?.data?.totalElements || 0,
 
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
 
           onChange: (page, pageSize) => {
             setPagination({
-              current: page,
+              current: page - 1,
               pageSize: pageSize,
             });
           },

@@ -18,7 +18,7 @@ export const RoomPage = () => {
   const [roomName, setRoomName] = useState("");
 
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
 
@@ -26,11 +26,13 @@ export const RoomPage = () => {
   const [debouncedSearch] = useDebounce(search, 500);
 
   // Gọi hook api lấy danh sách phòng
-  const { data: rooms, isLoading } = useRooms({
+  const { data, isLoading } = useRooms({
     page: pagination.current,
     pageSize: pagination.pageSize,
     search: debouncedSearch,
   });
+
+  const rooms = data?.data?.content || [];   
 
   // Gọi hook api thêm phòng
   const addRoomMutate = useAddRoom();
@@ -53,12 +55,9 @@ export const RoomPage = () => {
 
   const onAddRoom = (values: any) => {
     addRoomMutate.mutate(values.room_name, {
-      onSuccess: () => {
-        message.success("Thêm phòng khám thành công");
+      onSuccess: (data) => {
+        message.success(data.message);
         onCloseAddModal();
-      },
-      onError: () => {
-        message.error("Lỗi khi thêm phòng khám, vui lòng thử lại sau!");
       },
     });
   };
@@ -80,17 +79,14 @@ export const RoomPage = () => {
   const onUpdateRoom = (values: any) => {
     updateRoomMutate.mutate(
       {
-        room_id: roomId,
-        room_name: values.room_name,
+        roomId,
+        roomName: values.room_name,
       },
       {
-        onSuccess: () => {
-          message.success("Cập nhật phòng khám thành công");
+        onSuccess: (data) => {
+          message.success(data.message);
           onCloseUpdateModal();
-        },
-        onError: () => {
-          message.error("Lỗi khi cập nhật phòng khám, vui lòng thử lại sau!");
-        },
+        }
       },
     );
   };
@@ -143,18 +139,18 @@ export const RoomPage = () => {
             || deleteRoomMutate.isPending
         }
         columns={columns}
-        dataSource={rooms?.data || []}
+        dataSource={rooms}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
-          total: rooms?.count || 0,
+          total: data?.data?.totalElements || 0,
 
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
 
           onChange: (page, pageSize) => {
             setPagination({
-              current: page,
+              current: page - 1,
               pageSize: pageSize,
             });
           },

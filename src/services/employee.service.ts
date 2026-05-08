@@ -1,9 +1,12 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
+import type { ApiResponse, PageResponse } from "../types/api.response";
 import type { UpdateEmployeeParams } from "../types/employee";
+import type { Employee } from "../types/user.type";
 import { getRoleByName } from "./auth.service";
 
 // Lấy danh sách nhân viên
-export const getAllEmployees = async ({
+export const getAllEmployeesApi = async ({
   page,
   pageSize,
   search,
@@ -12,36 +15,20 @@ export const getAllEmployees = async ({
   pageSize?: number;
   search?: string;
 }) => {
-  let query = supabase
-    .from("profiles")
-    .select(
-      `
-    id,
-    fullname,
-    email,
-    phonenumber,
-    gender,
-    avatarurl,
-    date_of_birth,
-    address,
-    roles!inner(name)
-  `,
-    )
-    .eq("roles.name", "employee")
-    .order("created_at", { ascending: false });
+  const queryParams: Record<string, any> = {
+    page,
+    size: pageSize,
+  };
 
-  if (page !== undefined && pageSize !== undefined) {
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize - 1;
-    query = query.range(start, end);
-  }
+  if (search) queryParams.search = search;
 
-  // Tìm kiếm theo email hoặc fullname
-  if (search) {
-    query = query.or(`fullname.ilike.%${search}%,email.ilike.%${search}%`);
-  }
-
-  return await query;
+  const res = await axiosClient.get<ApiResponse<PageResponse<Employee>>>(
+    "/v1/users/employees",
+    {
+      params: queryParams,
+    }
+  );
+  return res.data;
 };
 
 // Tạo tài khoản nhân viên

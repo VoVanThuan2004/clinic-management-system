@@ -17,17 +17,16 @@ export type DoctorOption = {
 }
 
 export type DoctorResponse = {
-  id: string;
-  fullname: string;
+  doctorId: string;
+  doctorName: string;
   email: string;
-  phonenumber: string;
+  phoneNumber: string;
   gender: number;
-  avatarurl: string;
-  address: string;
-  date_of_birth: string;
-  doctor_details: {
+  avatarUrl: string;
+  dateOfBirth: string;
+  doctorDetailResponse: {
     specialty: string;
-    experience_years: number;
+    experienceYears: number;
     biography: string;
   };
 };

@@ -1,33 +1,32 @@
 import { UserPlus } from "lucide-react";
 import { ExportExcelButton } from "../../components/ExportExcelButton";
 import { useState } from "react";
-import type { Employee } from "../../types/employee";
-import { getAllEmployees } from "../../services/employee.service";
 import { formatDate } from "../../utils/formatDate";
 import { exportExcel } from "../../utils/excel/exportExcel";
 import { message } from "antd";
+import type { Employee } from "../../types/user.type";
 
 type Props = {
   onOpenAdd: () => void;
+  data: Employee[];
 };
 
 export const Toolbar = (props: Props) => {
-  const { onOpenAdd } = props;
+  const { onOpenAdd, data } = props;
   const [isExportLoading, setIsExportLoading] = useState(false);
 
   // Export file
   const handleExport = async () => {
     setIsExportLoading(true);
     try {
-      const { data } = await getAllEmployees({});
+      // const { data } = await getAllEmployeesApi({});
 
       const mappingData = (data as Employee[]).map((e) => ({
         "Email": e.email,
-        "Họ tên": e.fullname,
+        "Họ tên": e.fullName,
         "Giới tính": e.gender === 1 ? "Nam" : "Nữ",
-        "Ngày sinh": formatDate(e.date_of_birth),
-        "SĐT": e.phonenumber,
-        "Địa chỉ": e.address,
+        "Ngày sinh": formatDate(e.dateOfBirth),
+        "SĐT": e.phoneNumber,
       }));
 
       exportExcel({

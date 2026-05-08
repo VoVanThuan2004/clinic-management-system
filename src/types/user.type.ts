@@ -18,3 +18,13 @@ export type UserProfile = {
   phoneNumber: string;
   role: string;
 }
+
+export type Employee = {
+  userId: string;
+  fullName: string;
+  email: string;
+  avatarUrl: string;
+  gender: number;
+  phoneNumber: string;
+  dateOfBirth: string;
+}

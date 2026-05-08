@@ -1,6 +1,6 @@
 import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
-import type { ApiResponse } from "../types/api.response";
+import type { ApiResponse, PageResponse } from "../types/api.response";
 import type {
   CreateDoctorParams,
   Doctor,
@@ -72,41 +72,20 @@ export const getAllDoctors = async ({
   pageSize?: number;
   search?: string;
 }) => {
-  let query = supabase
-    .from("profiles")
-    .select(
-      `
-    id,
-    fullname,
-    email,
-    phonenumber,
-    gender,
-    avatarurl,
-    date_of_birth,
-    address,
-    roles!inner(name),
-    doctor_details!inner(
-      specialty,
-      experience_years,
-      biography
-    )
-  `,
-    )
-    .eq("roles.name", "doctor")
-    .order("created_at", { ascending: false });
+  const queryParams: Record<string, any> = {
+    page,
+    size: pageSize,
+  };
 
-  if (page !== undefined && pageSize !== undefined) {
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize - 1;
-    query = query.range(start, end);
-  }
+  if (search) queryParams.search = search;
 
-  // Tìm kiếm theo email hoặc fullname
-  if (search) {
-    query = query.or(`fullname.ilike.%${search}%,email.ilike.%${search}%`);
-  }
-
-  return await query.returns<DoctorResponse[]>();
+  const res = await axiosClient.get<ApiResponse<PageResponse<DoctorResponse>>>(
+    "/v1/users/doctors",
+    {
+      params: queryParams,
+    },
+  );
+  return res.data;
 };
 
 // Tạo tài khoản bác sĩ

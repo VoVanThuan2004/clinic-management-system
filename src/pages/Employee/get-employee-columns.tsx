@@ -15,15 +15,15 @@ export const getEmployeeColumns = ({ onOpenUpdate, onDelete,onResetPassword }: P
     dataIndex: "email",
     key: "email",
     render: (email: string) => (
-      <span className="text-blue-600 font-medium">{email}</span>
+      <span className="text-black font-medium">{email}</span>
     ),
   },
   {
     title: "Họ tên",
-    key: "fullname",
+    key: "fullName",
     render: (_: any, record: any) => {
-      const name = record.fullname || "";
-      const avatar = record.avatarurl;
+      const name = record.fullName || "";
+      const avatar = record.avatarUrl;
 
       return (
         <div className="flex items-center gap-3">
@@ -38,8 +38,8 @@ export const getEmployeeColumns = ({ onOpenUpdate, onDelete,onResetPassword }: P
   },
   {
     title: "Ngày sinh",
-    dataIndex: "date_of_birth",
-    key: "date_of_birth",
+    dataIndex: "dateOfBirth",
+    key: "dateOfBirth",
     render: (date: string) => <p>{formatDate(date)}</p>,
   },
   {
@@ -50,13 +50,8 @@ export const getEmployeeColumns = ({ onOpenUpdate, onDelete,onResetPassword }: P
   },
   {
     title: "SĐT",
-    dataIndex: "phonenumber",
-    key: "phonenumber",
-  },
-  {
-    title: "Địa chỉ",
-    dataIndex: "address",
-    key: "address",
+    dataIndex: "phoneNumber",
+    key: "phoneNumber",
   },
   {
     title: "Hành động",

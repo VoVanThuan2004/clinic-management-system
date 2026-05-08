@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllRooms } from "../../services/room.service";
+import { getAllRoomsApi } from "../../services/room.service";
 
 type Props = {
   page: number;
@@ -9,7 +9,7 @@ type Props = {
 
 export const useRooms = (props: Props) => {
   return useQuery({
-    queryFn: () => getAllRooms(props),
+    queryFn: () => getAllRoomsApi(props),
     queryKey: ["rooms", props],
     placeholderData: (prevData) => prevData,
   });

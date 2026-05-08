@@ -2,13 +2,13 @@ import { UserPlus } from "lucide-react";
 import { ExportExcelButton } from "../../components/ExportExcelButton";
 import { useState } from "react";
 import type { DoctorResponse } from "../../types/doctor.type";
-import { getAllDoctors } from "../../services/doctor.service";
 import { formatDate } from "../../utils/formatDate";
 import { exportExcel } from "../../utils/excel/exportExcel";
 import { message } from "antd";
 
 type Props = {
   onOpenAdd: () => void;
+  data: DoctorResponse[];
 };
 
 export const Toolbar = (props: Props) => {
@@ -19,18 +19,16 @@ export const Toolbar = (props: Props) => {
   const handleExport = async () => {
     setIsExportLoading(true);
     try {
-      const { data } = await getAllDoctors({});
 
-      const mappingData = (data as DoctorResponse[]).map((e) => ({
+      const mappingData = props.data.map((e) => ({
         "Email": e.email,
-        "Họ tên": e.fullname,
+        "Họ tên": e.doctorName,
         "Giới tính": e.gender === 1 ? "Nam" : "Nữ",
-        "Ngày sinh": formatDate(e.date_of_birth),
-        "SĐT": e.phonenumber,
-        "Địa chỉ": e.address,
-        "Chuyên khoa": e.doctor_details.specialty,
-        "Năm kinh nghiệm": e.doctor_details.experience_years,
-        "Tiểu sử": e.doctor_details.biography,
+        "Ngày sinh": formatDate(e.dateOfBirth),
+        "SĐT": e.phoneNumber,
+        "Chuyên khoa": e.doctorDetailResponse?.specialty,
+        "Năm kinh nghiệm": e.doctorDetailResponse?.experienceYears,
+        "Tiểu sử": e.doctorDetailResponse?.biography,
       }));
 
       exportExcel({

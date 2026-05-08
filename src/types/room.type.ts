@@ -1,10 +1,17 @@
-
 export type Room = {
-    roomId: string;
-    roomName: string;
-}
+  roomId: string;
+  roomName: string;
+};
+
+export type RoomResponse = {
+  roomId: string;
+  roomName: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type UpdateRoomParams = {
-    room_id: string;
-    room_name: string;
-}
+  roomId: string;
+  roomName: string;
+};

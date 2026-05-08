@@ -1,7 +1,7 @@
 import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
-import type { ApiResponse } from "../types/api.response";
-import type { Room, UpdateRoomParams } from "../types/room.type";
+import type { ApiResponse, PageResponse } from "../types/api.response";
+import type { Room, RoomResponse, UpdateRoomParams } from "../types/room.type";
 
 // Lấy danh sách phòng trống
 export const getAllRoomsAvailable = async () => {
@@ -10,7 +10,7 @@ export const getAllRoomsAvailable = async () => {
 };
 
 // Lấy danh sách phòng quản lý bởi admin
-export const getAllRooms = async ({
+export const getAllRoomsApi = async ({
   page,
   pageSize,
   search,
@@ -19,41 +19,43 @@ export const getAllRooms = async ({
   pageSize: number;
   search?: string;
 }) => {
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  let query = supabase
-    .from("rooms")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .range(from, to);
+  const queryParams: Record<string, any> = {
+    page,
+    size: pageSize,
+  };
 
-  if (search) {
-    query = query.or(`room_name.ilike.%${search}%`);
-  }
+  if (search) queryParams.search = search;
 
-  return await query;
+  const res = await axiosClient.get<ApiResponse<PageResponse<RoomResponse>>>(
+    "/v1/rooms",
+    { params: queryParams }
+  );
+  return res.data;
 };
 
 // Thêm phòng khám
-export const addRoom = async (room_name: string) => {
-  const { error } = await supabase.from("rooms").insert({
-    room_name,
-  });
+export const addRoom = async (roomName: string) => {
+  const res = await axiosClient.post<ApiResponse>(
+    "/v1/rooms",
+    {
+      roomName,
+    }
+  );
 
-  if (error) throw error;
+  return res.data;
 };
 
 // Cập nhật phòng khám
 export const updateRoom = async (room: UpdateRoomParams) => {
-  const { room_id, room_name } = room;
-  const { error } = await supabase
-    .from("rooms")
-    .update({
-      room_name,
-    })
-    .eq("room_id", room_id);
+  const { roomId, roomName } = room;
+  const res = await axiosClient.put<ApiResponse>(
+    `/v1/rooms/${roomId}`,
+    {
+      roomName,
+    }
+  );
 
-  if (error) throw error;
+  return res.data;
 };
 
 // Xóa phòng khám

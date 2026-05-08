@@ -11,15 +11,6 @@ export const exportExcel = (props: Props) => {
 
   if (!data || data.length === 0) return;
 
-//   const mappingData = data.map((p) => ({
-//     "Email": p.email,
-//     "Họ tên": p.full_name,
-//     "Giới tính": p.gender === 1 ? "Nam" : "Nữ",
-//     "Ngày sinh": formatDate(p.date_of_birth),
-//     "SĐT": p.phone_number,
-//     "Địa chỉ": p.address,
-//   }));
-
   const worksheet = XLSX.utils.json_to_sheet(data);
 
   const workbook = XLSX.utils.book_new();
