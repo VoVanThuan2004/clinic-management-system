@@ -509,7 +509,7 @@ export const AppointmentModal = (props: Props) => {
     </Button>,
   ];
 
-  console.log("Room ID: ", selectedRoom);
+  // console.log("Room ID: ", selectedRoom);
 
   return (
     <AppModal

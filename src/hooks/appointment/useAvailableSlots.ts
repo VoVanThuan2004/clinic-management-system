@@ -26,7 +26,7 @@ export const useAvailableSlots = ({
         doctorId,
         roomId,
         date,
-      });
+      });      
 
       const result = generateAvailableSlots({
         date,

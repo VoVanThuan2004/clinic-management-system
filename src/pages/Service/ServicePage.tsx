@@ -20,7 +20,7 @@ export const ServicePage = () => {
   const [description, setDescription] = useState("");
 
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
 
@@ -28,11 +28,12 @@ export const ServicePage = () => {
   const [debouncedSearch] = useDebounce(search, 500);
 
   // Gọi hook api lấy danh sách dịch vụ
-  const { data: services, isLoading } = useServices({
+  const { data, isLoading } = useServices({
     page: pagination.current,
     pageSize: pagination.pageSize,
     search: debouncedSearch,
   });
+  const services = data?.data?.content || [];
 
   const addServiceMutate = useAddService();
   const deleteServiceMutate = useDeleteService();
@@ -50,18 +51,15 @@ export const ServicePage = () => {
   const onAddService = (values: any) => {
     addServiceMutate.mutate(
       {
-        service_name: values.service_name,
+        serviceName: values.serviceName,
         price: values.price,
         description: values.description,
       },
       {
-        onSuccess: () => {
-          message.success("Thêm dịch vụ khám thành công");
+        onSuccess: (data) => {
+          message.success(data.message ||"Thêm dịch vụ khám thành công");
           onCloseAddModal();
-        },
-        onError: () => {
-          message.error("Lỗi khi thêm dịch vụ khám, vui lòng thử lại sau!");
-        },
+        }
       },
     );
   };
@@ -102,19 +100,16 @@ export const ServicePage = () => {
   const onUpdateService = (values: any) => {
     updateServiceMutate.mutate(
       {
-        service_id: serviceId,
-        service_name: values.service_name,
+        serviceId,
+        serviceName: values.serviceName,
         price: values.price,
         description: values.description,
       },
       {
-        onSuccess: () => {
-          message.success("Cập nhật dịch vụ thành công");
+        onSuccess: (data) => {
+          message.success(data.message ||"Cập nhật dịch vụ thành công");
           onCloseUpdateModal();
-        },
-        onError: () => {
-          message.error("Lỗi khi cập nhật dịch vụ, vui lòng thử lại sau!");
-        },
+        }
       },
     );
   };
@@ -157,18 +152,18 @@ export const ServicePage = () => {
           updateServiceMutate.isPending
         }
         columns={columns}
-        dataSource={services?.data || []}
+        dataSource={services}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
-          total: services?.count || 0,
+          total: data?.data?.totalElements || 0,
 
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
 
           onChange: (page, pageSize) => {
             setPagination({
-              current: page,
+              current: page - 1,
               pageSize: pageSize,
             });
           },
@@ -193,7 +188,7 @@ export const ServicePage = () => {
         onClose={onCloseUpdateModal}
         serviceId={serviceId}
         initialValues={{
-          service_name: serviceName,
+          serviceName,
           price: price,
           description: description,
         }}

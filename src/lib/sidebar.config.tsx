@@ -1,4 +1,13 @@
-import { Calendar, ClipboardPlus, DoorOpen, LayoutDashboard, Pill, Stethoscope, Tags, Users } from "lucide-react";
+import {
+  Calendar,
+  ClipboardPlus,
+  DoorOpen,
+  LayoutDashboard,
+  Pill,
+  Stethoscope,
+  Tags,
+  Users,
+} from "lucide-react";
 
 export type SidebarItem = {
   key: string;
@@ -47,6 +56,12 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
 
   ADMIN: [
     {
+      key: "dashboard",
+      to: "/admin/dashboard",
+      label: "Dashboard",
+      icon: <LayoutDashboard size={20} />,
+    },
+    {
       key: "users",
       label: "Quản lý người dùng",
       icon: <Users size={20} />,
@@ -94,11 +109,6 @@ export const sidebarConfig: Record<string, SidebarItem[]> = {
       label: "Quản lý thuốc",
       icon: <Pill size={20} />,
     },
-      {
-      key: "dashboard",
-      to: "/admin/dashboard",
-      label: "Dashboard",
-      icon: <LayoutDashboard size={20} />,
-    },
+    
   ],
 };

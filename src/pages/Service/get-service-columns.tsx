@@ -15,8 +15,8 @@ type Props = {
 export const getServiceColumns = ({ onEdit, onDelete }: Props) => [
   {
     title: "Tên dịch vụ",
-    dataIndex: "service_name",
-    key: "service_name",
+    dataIndex: "serviceName",
+    key: "serviceName",
     render: (text: string) => (
       <span className="font-semibold text-gray-800">{text}</span>
     ),
@@ -55,8 +55,8 @@ export const getServiceColumns = ({ onEdit, onDelete }: Props) => [
           className="text-yellow-500 cursor-pointer"
           onClick={() =>
             onEdit(
-              record.service_id,
-              record.service_name,
+              record.serviceId,
+              record.serviceName,
               record.price,
               record.description,
             )
@@ -66,7 +66,7 @@ export const getServiceColumns = ({ onEdit, onDelete }: Props) => [
         <Popconfirm
           title="Xóa dịch vụ"
           description="Bạn có chắc chắn muốn xóa dịch vụ này?"
-          onConfirm={() => onDelete(record.service_id)}
+          onConfirm={() => onDelete(record.serviceId)}
           okText="Xóa"
           cancelText="Hủy"
         >

@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@react-pdf/renderer": "^4.3.2",
+    "@stomp/stompjs": "^7.3.0",
     "@supabase/supabase-js": "^2.99.1",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.90.21",
@@ -25,6 +26,7 @@
     "react-hook-form": "^7.71.2",
     "react-router-dom": "^7.13.1",
     "recharts": "^3.8.1",
+    "sockjs-client": "^1.6.1",
     "tailwindcss": "^4.2.1",
     "use-debounce": "^10.1.0",
     "xlsx": "^0.18.5",
@@ -37,6 +39,7 @@
     "@types/node": "^24.12.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/sockjs-client": "^1.5.4",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",

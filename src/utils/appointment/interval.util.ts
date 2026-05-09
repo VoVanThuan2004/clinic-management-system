@@ -3,8 +3,8 @@ import type { BookedData, Interval } from "../../types/appointment.type";
 
 export const toIntervals = (data: BookedData[]): Interval[] => {
   return data.map((item) => {
-    const start = dayjs(item.start_time);
-    const end = start.add(item.duration_minutes, "minute");
+    const start = dayjs(item.startTime);
+    const end = start.add(item.durationMinutes, "minute");
 
     return { start, end };
   });

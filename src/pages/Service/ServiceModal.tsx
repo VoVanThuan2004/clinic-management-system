@@ -33,7 +33,7 @@ export const ServiceModal = (props: Props) => {
   useEffect(() => {
     if (isOpen && initialValues) {
       form.setFieldsValue({
-        service_name: initialValues.service_name,
+        serviceName: initialValues.serviceName,
         price: initialValues.price,
         description: initialValues.description,
       });
@@ -42,7 +42,7 @@ export const ServiceModal = (props: Props) => {
 
   const fieldsInput: FormField[] = [
     {
-      name: "service_name",
+      name: "serviceName",
       label: "Tên dịch vụ",
       type: "input",
       placeholder: "Nhập tên dịch vụ",

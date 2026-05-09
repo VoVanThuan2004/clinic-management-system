@@ -15,4 +15,5 @@ export type PageResponse<T = any> = {
   first: boolean;
   last: boolean;
   empty: boolean;
+  page: number;
 };

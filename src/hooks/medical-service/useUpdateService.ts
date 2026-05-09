@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateService } from "../../services/medical-service.service";
+import { updateServiceApi } from "../../services/medical-service.service";
 
 export const useUpdateService = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateService,
+    mutationFn: updateServiceApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["services"] });
     },

@@ -17,7 +17,6 @@ import { useAuthStore } from "../../stores/useAuthStore";
 import { patientFields } from "../Patient/schemas/patient.form";
 import { useAddPatient } from "../../hooks/useAddPatient";
 import { ModalForm } from "../../components/ModalForm";
-import { generatePatientCode } from "../../utils/generatePatientCode";
 const { TextArea } = Input;
 
 type Props = {
@@ -115,7 +114,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
           patientId: values.patient,
           startTime: start_time,
           reason: values.reason,
-          serviceId: values.service,
+          serviceId: values.service || selectedMedicalService,
           roomId: values.room,
           durationMinutes: durationMinutes as number,
           employeeId: employee?.userId as string,
@@ -176,18 +175,17 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
 
   const handleAddPatient = (values: any) => {
     // Tạo mã code bệnh nhân
-    const patient_code = generatePatientCode();
+    // const patient_code = generatePatientCode();
 
     const formattedValues = {
       ...values,
-      date_of_birth: values.date_of_birth
-        ? values.date_of_birth.format("YYYY-MM-DD")
+      dateOfBirth: values.dateOfBirth
+        ? values.dateOfBirth.format("YYYY-MM-DD")
         : null,
     };
 
     useAddPatientMutation.mutate(
       {
-        patient_code,
         ...formattedValues,
       },
       {
@@ -455,8 +453,7 @@ export const CreateModal = ({ isOpen, onClose }: Props) => {
     </div>
   );
 
-  console.log("Dịch vụ: ", selectedMedicalService);
-  console.log("Phòng khám: ", selectedRoom);
+
 
   return (
     <>

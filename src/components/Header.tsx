@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import avatarTest from "../assets/react.svg";
 import { useAuthStore } from "../stores/useAuthStore";
-import { Dropdown, type MenuProps } from "antd";
+import {  Dropdown, type MenuProps } from "antd";
 import { Menu } from "lucide-react";
 import { logoutApi } from "../services/auth.service";
+import { NotificationBell } from "./NotificationBell";
+import { useNotificationStore } from "../stores/useNotificationStore";
 
 // function xác định navlink url tương ứng của từng role, hiển thị tiêu đề
 const getHeaderTitleByRole = (roleName: string) => {
@@ -62,6 +64,7 @@ export const Header = (props: Props) => {
   const urlChangePassword = getUrlChangePasswordByRole(
     user?.roleName as string,
   );
+  const totalNotifications = useNotificationStore((state) => state.totalNotifications);  
 
   // Đăng xuất
   const handleLogout = async () => {
@@ -75,7 +78,6 @@ export const Header = (props: Props) => {
     } catch (error) {
       console.log(error);
     }
-    
   };
 
   const items: MenuProps["items"] = [
@@ -121,6 +123,7 @@ export const Header = (props: Props) => {
 
         {/* Thông tin info */}
         <div className="flex items-center gap-3">
+          <NotificationBell totalNotifications={totalNotifications}/>
           <div className="flex flex-col items-end leading-tight">
             <span className="text-sm font-medium text-gray-800">
               {user?.fullName}

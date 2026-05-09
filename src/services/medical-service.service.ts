@@ -1,11 +1,12 @@
 import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
-import type { ApiResponse } from "../types/api.response";
-import type { MedicalServiceOption } from "../types/medical-service.type";
+import type { ApiResponse, PageResponse } from "../types/api.response";
 import type {
-  AddServiceParams,
-  UpdateServiceParams,
-} from "../types/service.type";
+  MedicalServiceOption,
+  MedicalServiceRequest,
+  MedicalServiceResponse,
+  UpdateMedicalServiceRequest,
+} from "../types/medical-service.type";
 
 // Hàm lấy danh sách dịch vụ khám
 export const selectMedicalService = async () => {
@@ -58,7 +59,7 @@ export const getServiceFee = async (recordId: string) => {
 };
 
 // Lấy danh sách dịch vụ cho admin
-export const getAllServices = async ({
+export const getAllServicesApi = async ({
   page,
   pageSize,
   search,
@@ -67,30 +68,23 @@ export const getAllServices = async ({
   pageSize: number;
   search?: string;
 }) => {
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  let query = supabase
-    .from("services")
-    .select("*")
-    .range(from, to)
-    .order("created_at", { ascending: false });
+  const queryParams: Record<string, any> = {
+    page,
+    size: pageSize,
+  };
+  if (search) queryParams.search = search;
 
-  if (search) {
-    query = query.or(`service_name.ilike.%${search}%`);
-  }
-
-  return await query;
+  const res = await axiosClient.get<
+    ApiResponse<PageResponse<MedicalServiceResponse>>
+  >("/v1/services", { params: queryParams });
+  return res.data;
 };
 
 // Thêm dịch vụ khám
-export const addService = async (data: AddServiceParams) => {
-  const { error } = await supabase.from("services").insert({
-    service_name: data.service_name,
-    price: data.price,
-    description: data.description,
-  });
+export const addServiceApi = async (data: MedicalServiceRequest) => {
+  const res = await axiosClient.post<ApiResponse>("/v1/services", data);
 
-  if (error) throw error;
+  return res.data;
 };
 
 // Xóa dịch vụ khám
@@ -104,16 +98,14 @@ export const deleteService = async (serviceId: string) => {
 };
 
 // Cập nhật dịch vụ khám
-export const updateService = async (data: UpdateServiceParams) => {
-  const { service_id, service_name, price, description } = data;
-  const { error } = await supabase
-    .from("services")
-    .update({
-      service_name,
-      price,
-      description,
-    })
-    .eq("service_id", service_id);
+export const updateServiceApi = async (data: UpdateMedicalServiceRequest) => {
+  const { serviceId, serviceName, price, description } = data;
 
-  if (error) throw error;
+  const res = await axiosClient.put<ApiResponse>(`/v1/services/${serviceId}`, {
+    serviceName,
+    price,
+    description,
+  });
+
+  return res.data;
 };
