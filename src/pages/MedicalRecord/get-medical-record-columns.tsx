@@ -136,14 +136,14 @@ export const getMedicalRecordColumns = (props: Props) => [
           </button>
         </Tooltip>
 
-        {props.openPaymentModal && !record.payment_status && (
+        {props.openPaymentModal && !record.paymentStatus && (
           <Tooltip title="Thanh toán">
             <button
               className="flex items-center gap-1 bg-red-500 px-2 py-1.5 rounded-md cursor-pointer"
               onClick={() =>
                 props.openPaymentModal!(
                   record.medicalRecordId,
-                  record.fullName,
+                  record.patientName,
                   record.doctorName,
                 )
               }
@@ -154,7 +154,7 @@ export const getMedicalRecordColumns = (props: Props) => [
           </Tooltip>
         )}
 
-        {record.payment_status && (
+        {record.paymentStatus && (
           <Tooltip title="Tải file pdf">
             <span
               onClick={() =>

@@ -1,7 +1,8 @@
 import { Button, Divider, Modal } from "antd";
 import { BriefcaseMedical, User } from "lucide-react";
 import { usePrescription } from "../../hooks/prescription/usePrescription";
-import { useGetServiceFee } from "../../hooks/medical-service/useGetServiceFee";
+import { useState } from "react";
+import { Banknote, Landmark, CheckCircle2 } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -10,9 +11,10 @@ type Props = {
   patientName: string;
   doctorName: string;
   onPayMedicalRecord: (
-    consultantFee: number,
-    total_medicine: number,
-    total_amount: number,
+    serviceFee: number,
+    totalMedicine: number,
+    totalAmount: number,
+    paymentMethod: "CASH" | "BANKING"
   ) => void;
   isLoading: boolean;
 };
@@ -27,16 +29,15 @@ export const PaymentModal = (props: Props) => {
     onPayMedicalRecord,
     isLoading,
   } = props;
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "BANKING">(
+    "CASH",
+  );
 
   const { data, isLoading: loadingPrescription } = usePrescription(recordId);
-  const items = data?.data?.prescription_items || [];
+  const items = data?.data?.items || [];
 
-  // Hook api lấy thông phí dịch vụ
-  const { serviceFeeData, isLoadingServiceFee } = useGetServiceFee(recordId);
-  
-  // Dựa vào cấu trúc dữ liệu trả về đã phân tích ở câu trước:
-  const serviceName = serviceFeeData?.service_name || "Không xác định";
-  const serviceFee = serviceFeeData?.price || 0;  
+  const serviceName = data?.data?.serviceName || "Không xác định";
+  const serviceFee = data?.data?.serviceFee || 0;
 
   const totalMedicine = items.reduce((accumulator, currentValue) => {
     const itemTotal = currentValue.price * currentValue.quantity;
@@ -51,9 +52,10 @@ export const PaymentModal = (props: Props) => {
       title={
         <h2 className="text-lg font-semibold">Thanh toán hóa đơn khám bệnh</h2>
       }
+      centered
       onCancel={onClose}
       destroyOnClose
-      loading={loadingPrescription || isLoadingServiceFee}
+      loading={loadingPrescription}
       footer={[
         <Button key="back" onClick={onClose}>
           Hủy
@@ -62,7 +64,7 @@ export const PaymentModal = (props: Props) => {
           key="submit"
           type="primary"
           onClick={() =>
-            onPayMedicalRecord(serviceFee, totalMedicine, totalAmount)
+            onPayMedicalRecord(serviceFee, totalMedicine, totalAmount, paymentMethod)
           }
           loading={isLoading}
           disabled={isLoading}
@@ -80,7 +82,9 @@ export const PaymentModal = (props: Props) => {
             </span>
             <div className="flex items-center gap-2">
               <User size={18} className="text-blue-500" />
-              <span className="font-semibold text-gray-800">{patientName || ""}</span>
+              <span className="font-semibold text-gray-800">
+                {patientName || ""}
+              </span>
             </div>
           </div>
 
@@ -90,7 +94,9 @@ export const PaymentModal = (props: Props) => {
             </span>
             <div className="flex items-center gap-2">
               <BriefcaseMedical size={18} className="text-red-500" />
-              <span className="font-semibold text-gray-800">{doctorName || ""}</span>
+              <span className="font-semibold text-gray-800">
+                {doctorName || ""}
+              </span>
             </div>
           </div>
         </div>
@@ -106,9 +112,92 @@ export const PaymentModal = (props: Props) => {
               <span className="font-medium text-blue-600">{serviceName}</span>
             </div>
             <div className="text-right">
-              <span className="text-gray-500 text-xs italic block">Phí dịch vụ</span>
-              <span className="font-bold text-gray-800">{serviceFee.toLocaleString()} VND</span>
+              <span className="text-gray-500 text-xs italic block">
+                Phí dịch vụ
+              </span>
+              <span className="font-bold text-gray-800">
+                {serviceFee.toLocaleString()} VND
+              </span>
             </div>
+          </div>
+        </div>
+
+        {/* Payment Method */}
+        <div className="mb-6">
+          <label className="block mb-3 font-medium text-gray-700">
+            Phương thức thanh toán
+          </label>
+
+          <div className="grid grid-cols-2 gap-4">
+            {/* Cash */}
+            <button
+              onClick={() => setPaymentMethod("CASH")}
+              className={`
+        relative border rounded-2xl p-4 transition-all
+        flex items-center gap-4 text-left
+        hover:border-emerald-400 hover:shadow-sm
+        ${
+          paymentMethod === "CASH"
+            ? "border-emerald-500 bg-emerald-50"
+            : "border-gray-200 bg-white"
+        }
+      `}
+            >
+              {/* Selected */}
+              {paymentMethod === "CASH" && (
+                <CheckCircle2
+                  size={18}
+                  className="absolute top-3 right-3 text-emerald-600"
+                />
+              )}
+
+              <div className="w-11 h-11 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <Banknote size={22} className="text-emerald-600" />
+              </div>
+
+              <div>
+                <p className="font-semibold text-gray-800">Tiền mặt</p>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  Thanh toán trực tiếp tại quầy
+                </p>
+              </div>
+            </button>
+
+            {/* Banking */}
+            <button
+              onClick={() => setPaymentMethod("BANKING")}
+              className={`
+        relative border rounded-2xl p-4 transition-all
+        flex items-center gap-4 text-left
+        hover:border-blue-400 hover:shadow-sm
+        ${
+          paymentMethod === "BANKING"
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-200 bg-white"
+        }
+      `}
+            >
+              {/* Selected */}
+              {paymentMethod === "BANKING" && (
+                <CheckCircle2
+                  size={18}
+                  className="absolute top-3 right-3 text-blue-600"
+                />
+              )}
+
+              <div className="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center">
+                <Landmark size={22} className="text-blue-600" />
+              </div>
+
+              <div>
+                <p className="font-semibold text-gray-800">Chuyển khoản</p>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  Thanh toán qua ngân hàng
+                </p>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -116,12 +205,16 @@ export const PaymentModal = (props: Props) => {
         <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300">
           <div className="flex justify-between mb-2">
             <p className="text-gray-600">Tiền thuốc ({items.length} mục):</p>
-            <p className="font-medium text-gray-800">{totalMedicine.toLocaleString()} VND</p>
+            <p className="font-medium text-gray-800">
+              {totalMedicine.toLocaleString()} VND
+            </p>
           </div>
 
           <div className="flex justify-between mb-2">
             <p className="text-gray-600">Phí dịch vụ khám:</p>
-            <p className="font-medium text-gray-800">{serviceFee.toLocaleString()} VND</p>
+            <p className="font-medium text-gray-800">
+              {serviceFee.toLocaleString()} VND
+            </p>
           </div>
 
           <Divider className="my-3" />

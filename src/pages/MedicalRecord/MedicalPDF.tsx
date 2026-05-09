@@ -88,31 +88,23 @@ const styles = StyleSheet.create({
 const formatMoney = (n: number) => (n || 0).toLocaleString("vi-VN") + " VND";
 
 const getPaymentMethod = (paymentMethod: string) => {
-  if (paymentMethod === "cash") return "Thanh toán tiền mặt";
+  if (paymentMethod === "CASH") return "Thanh toán tiền mặt";
   return "Thanh toán chuyển khoản";
 };
 
 export const MedicalPDF = ({ data }: { data: MedicalRecordPDF }) => {
-  const patient = data.patients;
-  const doctor = data.profiles;
-  const specialty = doctor?.doctor_details?.specialty || "";
 
   // Thông tin dịch vụ
-  const serviceName = data.services?.service_name || "Khám bệnh";
-  const servicePrice = data.services?.price || 0;
+  const serviceName = data.prescriptions.serviceName || "Khám bệnh";
+  const servicePrice = data.prescriptions.serviceFee || 0;
 
   const prescription = data.prescriptions;
-  const items = prescription?.prescription_items || [];
+  const items = prescription?.items || [];
 
-  const payment = data.payments?.[0];
-
-  // Logic phí: Ưu tiên phí đã lưu trong payment, nếu chưa có thì lấy từ thông tin dịch vụ
-  const examinationFee = payment?.service_fee ?? servicePrice;
   const totalMedicine =
-    payment?.total_medicine ||
     items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const totalAmount = payment?.total_amount || totalMedicine + examinationFee;
+  const totalAmount = totalMedicine + servicePrice;
 
   return (
     <Document>
@@ -123,26 +115,31 @@ export const MedicalPDF = ({ data }: { data: MedicalRecordPDF }) => {
 
           <View style={styles.row}>
             <Text style={styles.label}>Tên:</Text>
-            <Text style={styles.value}>{patient?.full_name}</Text>
+            <Text style={styles.value}>{data.patientName}</Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Ngày sinh:</Text>
             <Text style={styles.value}>
-              {dayjs(patient.date_of_birth).format("DD/MM/YYYY")}
+              {dayjs(data.dateOfBirth).format("DD/MM/YYYY")}
             </Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Giới tính:</Text>
             <Text style={styles.value}>
-              {patient?.gender === 1 ? "Nam" : "Nữ"}
+              {data.gender === 1 ? "Nam" : "Nữ"}
             </Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>SĐT:</Text>
-            <Text style={styles.value}>{patient?.phone_number}</Text>
+            <Text style={styles.value}>{data.phoneNumber}</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.label}>Địa chỉ:</Text>
+            <Text style={styles.value}>{data.address}</Text>
           </View>
         </View>
 
@@ -152,12 +149,12 @@ export const MedicalPDF = ({ data }: { data: MedicalRecordPDF }) => {
 
           <View style={styles.row}>
             <Text style={styles.label}>Tên:</Text>
-            <Text style={styles.value}>{doctor?.fullname}</Text>
+            <Text style={styles.value}>{data.doctorName}</Text>
           </View>
 
           <View style={styles.row}>
             <Text style={styles.label}>Chuyên khoa:</Text>
-            <Text style={styles.value}>{specialty}</Text>
+            <Text style={styles.value}>{data.specialty}</Text>
           </View>
         </View>
 
@@ -217,7 +214,7 @@ export const MedicalPDF = ({ data }: { data: MedicalRecordPDF }) => {
                 ]}
               >
                 <View style={{ flex: 2 }}>
-                  <Text style={styles.colName}>{item.medicine_name}</Text>
+                  <Text style={styles.colName}>{item.medicineName}</Text>
                   {item.dosage && (
                     <Text
                       style={{
@@ -258,7 +255,7 @@ export const MedicalPDF = ({ data }: { data: MedicalRecordPDF }) => {
 
           <View style={styles.totalRow}>
             <Text style={{ fontSize: 10 }}>Dịch vụ ({serviceName}):</Text>
-            <Text style={{ fontSize: 10 }}>{formatMoney(examinationFee)}</Text>
+            <Text style={{ fontSize: 10 }}>{formatMoney(servicePrice)}</Text>
           </View>
 
           <View style={styles.totalRow}>
@@ -285,24 +282,24 @@ export const MedicalPDF = ({ data }: { data: MedicalRecordPDF }) => {
             </Text>
           </View>
 
-          {payment?.payment_method && (
+          {data.paymentMethod && (
             <View style={[styles.totalRow, { marginTop: 4 }]}>
               <Text style={{ fontSize: 9, color: "#666" }}>Phương thức thanh toán:</Text>
               <Text style={{ fontSize: 9, color: "#666" }}>
-                {getPaymentMethod(payment.payment_method)}
+                {getPaymentMethod(data.paymentMethod)}
               </Text>
             </View>
           )}
         </View>
 
         {/* ================= IMAGES ================= */}
-        {data.files?.length > 0 && (
+        {data.recordFiles?.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.title}>Ảnh xét nghiệm</Text>
 
             <View style={styles.imageContainer}>
-              {data.files.map((file, i) => (
-                <Image key={i} src={file.file_url} style={styles.image} />
+              {data.recordFiles.map((file) => (
+                <Image key={file.fileId} src={file.fileUrl} style={styles.image} />
               ))}
             </View>
           </View>

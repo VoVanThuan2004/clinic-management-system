@@ -1,3 +1,5 @@
+import type { Prescription } from "./prescription.type";
+
 export interface MedicalRecordDetail {
   medicalRecordId: string;
   symptoms: string | null;
@@ -37,51 +39,27 @@ export interface FileRecord {
 }
 
 export interface MedicalRecordPDF {
-  record_id: string;
-  appointment_id: string;
+  // Thông tin bệnh nhân
+  patientName: string;
+  phoneNumber: string;
+  gender: number;
+  dateOfBirth: string;
+  address: string;
 
+  // Thông tin bác sĩ
+  doctorName: string;
+  specialty: string;
+
+  // Thông tin hồ sơ khám
   symptoms: string;
   diagnosis: string;
   notes: string;
-  payment_status: boolean;
-  created_at: string;
 
-  services: {
-    service_id: string;
-    service_name: string;
-    price: number;
-  },
+  // Thông tin toa thuốc
+  prescriptions: Prescription;
 
-  patients: {
-    full_name: string;
-    phone_number: string;
-    gender: number;
-    date_of_birth: string;
-  };
+  // Thông tin file upload
+  recordFiles: FileRecord[];
 
-  profiles: {
-    fullname: string;
-    doctor_details: {
-      specialty: string;
-    }; // luôn nên để array
-  };
-
-  files: FileRecord[];
-
-  prescriptions: {
-    created_at: string;
-    prescription_items: {
-      medicine_name: string;
-      price: number;
-      quantity: number;
-      dosage: string;
-    }[];
-  };
-
-  payments: {
-    service_fee: number;
-    total_medicine: number;
-    total_amount: number;
-    payment_method: string;
-  }[];
+  paymentMethod: string;
 }

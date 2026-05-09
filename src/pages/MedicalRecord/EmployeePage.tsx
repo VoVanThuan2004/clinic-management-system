@@ -1,4 +1,4 @@
-import { Input, message, Select } from "antd";
+import { Input, message, notification, Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useMedicalRecords } from "../../hooks/medical-record/useMedicalRecords";
 import { useState } from "react";
@@ -97,18 +97,26 @@ export const EmployeePage = () => {
     serviceFee: number,
     totalMedicine: number,
     totalAmount: number,
+    paymentMethod: "CASH" | "BANKING",
   ) => {
     if (!recordId) return;
     payMedicalRecordMutation.mutate(
       {
-        recordId,
+        medicalRecordId: recordId,
         serviceFee,
         totalMedicine,
         totalAmount,
+        paymentMethod,
       },
       {
         onSuccess: () => {
           closePaymentModal();
+          if (paymentMethod === "CASH") {
+            notification.success({
+              message: "Thanh toán thành công",
+              description: `Đã thanh toán ${totalAmount} VNĐ bằng tiền mặt`,
+            });
+          }
         },
       },
     );
@@ -127,17 +135,16 @@ export const EmployeePage = () => {
     try {
       setLoadingPdfId(recordId);
 
-      const { data } = await getMedicalRecordPDF(recordId);
+      const res = await getMedicalRecordPDF(recordId);
 
-      if (!data) throw new Error("No data");
+      if (res.status === "success" && res.data) {
+        // tạo file PDF
+        const blob = await pdf(<MedicalPDF data={res.data} />).toBlob();
 
-      // tạo file PDF
-      const blob = await pdf(<MedicalPDF data={data} />).toBlob();
-
-      // download luôn
-      saveAs(blob, `medical-record.pdf`);
-    } catch (error) {
-      console.log(error);
+        // download luôn
+        saveAs(blob, `medical-record.pdf`);
+      }
+    } catch {
       message.error("Lỗi khi tải file pdf. Vui lòng thử lại");
     } finally {
       setLoadingPdfId(null);
@@ -187,7 +194,6 @@ export const EmployeePage = () => {
           placeholder="Trạng thái thanh toán"
           filterOption={false}
           options={[
-            
             {
               label: "Đã thanh toán",
               value: true,
