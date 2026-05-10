@@ -17,7 +17,7 @@ export const CategoryPage = () => {
   const [categoryName, setCategoryName] = useState("");
 
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
 
@@ -25,11 +25,12 @@ export const CategoryPage = () => {
   const [debouncedSearch] = useDebounce(search, 500);
 
   // Gọi hook api lấy danh sách categories
-  const { data: categories, isLoading } = useCategoriesPagination({
+  const { data, isLoading } = useCategoriesPagination({
     page: pagination.current,
     pageSize: pagination.pageSize,
     search: debouncedSearch,
   });
+  const categories = data?.data?.content || [];
 
   const deleteCategoryMutate = useDeleteCategory();
   const updateCategoryMutate = useUpdateCategory();
@@ -38,14 +39,11 @@ export const CategoryPage = () => {
   const addCategoryMutate = useAddCategory();
 
   const onAddCategory = (values: any) => {
-    addCategoryMutate.mutate(values, {
-      onSuccess: () => {
-        message.success("Thêm danh mục thành công");
+    addCategoryMutate.mutate(values.categoryName, {
+      onSuccess: (data) => {
+        message.success(data.message || "Thêm danh mục thành công");
         onCloseAddModal();
-      },
-      onError: () => {
-        message.error("Lỗi khi thêm danh mục");
-      },
+      }
     });
   };
 
@@ -59,13 +57,9 @@ export const CategoryPage = () => {
 
   const onDeleteCategory = (categoryId: string) => {
     deleteCategoryMutate.mutate(categoryId, {
-      onError: (error: any) => {
-        if (error.message === "CATEGORY_HAS_MEDICINES") {
-          message.error("Danh mục đang có thuốc tồn tại, không thể xóa!");
-        } else {
-          message.error("Lỗi hệ thống khi xóa danh mục");
-        }
-      },
+      onSuccess: (data) => {
+        message.success(data.message || "Xóa danh mục thành công");
+      }
     });
   };
 
@@ -85,16 +79,13 @@ export const CategoryPage = () => {
     updateCategoryMutate.mutate(
       {
         categoryId,
-        categoryName: values.category_name,
+        categoryName: values.categoryName,
       },
       {
-        onSuccess: () => {
-          message.success("Cập nhật danh mục thành công");
+        onSuccess: (data) => {
+          message.success(data.message || "Cập nhật danh mục thành công");
           onCloseUpdateModal();
-        },
-        onError: () => {
-          message.error("Lỗi khi cập nhật danh mục");
-        },
+        }
       },
     );
   };
@@ -119,18 +110,18 @@ export const CategoryPage = () => {
           updateCategoryMutate.isPending
         }
         columns={columns}
-        dataSource={categories?.data || []}
+        dataSource={categories}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
-          total: categories?.count || 0,
+          total: data?.data?.totalElements || 0,
 
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
 
           onChange: (page, pageSize) => {
             setPagination({
-              current: page,
+              current: page - 1,
               pageSize: pageSize,
             });
           },

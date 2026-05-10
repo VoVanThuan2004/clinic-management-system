@@ -1,8 +1,8 @@
-export type Category = {
-  category_id: string;
-  category_name: string;
-  created_at: string;
-  updated_at: string;
+export type CategoryResponse = {
+  categoryId: string;
+  categoryName: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CategoryOption = {

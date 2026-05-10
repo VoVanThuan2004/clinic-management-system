@@ -10,8 +10,8 @@ type Props = {
 export const getCategoriesColumns = ({ onDelete, onEdit }: Props) => [
   {
     title: "Tên danh mục",
-    dataIndex: "category_name",
-    key: "category_name",
+    dataIndex: "categoryName",
+    key: "categoryName",
     render: (text: string) => (
       <span className="font-medium text-gray-800">{text}</span>
     ),
@@ -19,8 +19,8 @@ export const getCategoriesColumns = ({ onDelete, onEdit }: Props) => [
 
   {
     title: "Thời gian tạo",
-    dataIndex: "created_at",
-    key: "created_at",
+    dataIndex: "createdAt",
+    key: "createdAt",
     render: (time: string) => (
       <span className="text-gray-600">
         {dayjs(time).format("HH:mm DD/MM/YYYY")}
@@ -30,8 +30,8 @@ export const getCategoriesColumns = ({ onDelete, onEdit }: Props) => [
 
   {
     title: "Thời gian cập nhật",
-    dataIndex: "updated_at",
-    key: "updated_at",
+    dataIndex: "updatedAt",
+    key: "updatedAt",
     render: (time: string) => (
       <span className="text-gray-600">
         {dayjs(time).format("HH:mm DD/MM/YYYY")}
@@ -46,13 +46,13 @@ export const getCategoriesColumns = ({ onDelete, onEdit }: Props) => [
         <SquarePen
           size={18}
           className="text-yellow-500 cursor-pointer"
-            onClick={() => onEdit(record.category_id, record.category_name)}
+            onClick={() => onEdit(record.categoryId, record.categoryName)}
         />
 
         <Popconfirm
           title="Xóa danh mục"
           description="Bạn có chắc chắn muốn xóa danh mục này?"
-            onConfirm={() => onDelete(record.category_id)}
+            onConfirm={() => onDelete(record.categoryId)}
           okText="Xóa"
           cancelText="Hủy"
         >

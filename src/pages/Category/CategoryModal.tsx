@@ -33,14 +33,14 @@ export const CategoryModal = (props: Props) => {
   useEffect(() => {
     if (isOpen && initialValues) {
       form.setFieldsValue({
-        category_name: initialValues,
+        categoryName: initialValues,
       });
     }
   }, [isOpen, initialValues, categoryId]);
 
   const fieldsInput: FormField[] = [
     {
-      name: "category_name",
+      name: "categoryName",
       label: "Tên danh mục",
       type: "input",
       placeholder: "Nhập danh mục",

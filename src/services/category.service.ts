@@ -1,7 +1,7 @@
 import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
-import type { ApiResponse } from "../types/api.response";
-import type { CategoryOption } from "../types/category.type";
+import type { ApiResponse, PageResponse } from "../types/api.response";
+import type { CategoryOption, CategoryResponse } from "../types/category.type";
 
 type Props = {
   page?: number;
@@ -12,24 +12,20 @@ type Props = {
 export const getCategories = async (props: Props) => {
   const { page, pageSize, search } = props;
 
-  let query = supabase
-    .from("category")
-    .select("category_id, category_name, created_at, updated_at", {
-      count: "exact",
-    })
-    .order("created_at", { ascending: false });
+  const queryParams: Record<string, any> = {
+    page,
+    size: pageSize,
+  };
 
-  if (page && pageSize) {
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-    query = query.range(from, to);
-  }
+  if (search) queryParams.search = search;
 
-  if (search) {
-    query = query.or(`category_name.ilike.%${search}%`);
-  }
-
-  return await query;
+  const res = await axiosClient.get<ApiResponse<PageResponse<CategoryResponse>>>(
+    "/v1/categories",
+    {
+      params: queryParams
+    }
+  );
+  return res.data;
 };
 
 export const getCategoriesOptionApi = async () => {
@@ -38,39 +34,22 @@ export const getCategoriesOptionApi = async () => {
 }
 
 // Thêm danh mục
-export const addCategory = async (category_name: string) => {
-  return await supabase.from("category").insert(category_name);
+export const addCategory = async (categoryName: string) => {
+  const res = await axiosClient.post<ApiResponse>(
+    "/v1/categories",
+    {
+      categoryName,
+    }
+  );
+  return res.data;
 };
 
 // Xóa danh mục
 export const deleteCategory = async (categoryId: string) => {
-  // check tồn tại medicine
-  const { data, error } = await supabase
-    .from("medicines")
-    .select("medicine_id")
-    .eq("category_id", categoryId)
-    .limit(1);
-
-  if (error) {
-    throw error;
-  }
-
-  // nếu có ít nhất 1 record → không cho xóa
-  if (data && data.length > 0) {
-    throw new Error("CATEGORY_HAS_MEDICINES");
-  }
-
-  // tiến hành xóa
-  const { error: deleteError } = await supabase
-    .from("category")
-    .delete()
-    .eq("category_id", categoryId);
-
-  if (deleteError) {
-    throw deleteError;
-  }
-
-  return true;
+  const res = await axiosClient.delete<ApiResponse>(
+    `/v1/categories/${categoryId}`
+  );
+  return res.data;
 };
 
 // Cập nhật danh mục
@@ -81,18 +60,13 @@ export const updateCategory = async ({
   categoryId: string;
   categoryName: string;
 }) => {
-  const { error } = await supabase
-    .from("category")
-    .update({
-      category_name: categoryName,
-    })
-    .eq("category_id", categoryId);
-
-  if (error) {
-    throw error;
-  }
-
-  return true;
+  const res = await axiosClient.put<ApiResponse>(
+    `/v1/categories/${categoryId}`,
+    {
+      categoryName,
+    }
+  );
+  return res.data;
 };
 
 export const getCategoriesOption = async (search?: string) => {
