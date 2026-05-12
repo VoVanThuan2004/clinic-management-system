@@ -66,9 +66,7 @@ export const LoginForm = () => {
       }
     } catch {
       clearSession();
-      tokenStorage.clear();
-      message.error("Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.");
-    
+      tokenStorage.clear();    
     } finally {
       setIsLoading(false);
     }

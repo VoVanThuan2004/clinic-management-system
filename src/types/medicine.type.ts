@@ -1,4 +1,5 @@
 export type Medicine = {
+  categoryId: string;
   medicineId: string;
   medicineName: string;
   image: string;
@@ -11,26 +12,24 @@ export type Medicine = {
 };
 
 export type AddMedicineParams = {
-  category_id: string;
-  medicine_name: string;
+  categoryId: string;
+  medicineName: string;
   unit: string;
-  original_price: number;
-  selling_price: number;
-  stock_quantity: number;
+  originalPrice: number;
+  sellingPrice: number;
+  stockQuantity: number;
   description: string;
-  fileObj: File;
-  filePath: string;
+  file: File;
 }
 
 export type UpdateMedicineParams = {
-  medicine_id: string;
-  category_id: string;
-  medicine_name: string;
+  medicineId: string;
+  categoryId: string;
+  medicineName: string;
   unit: string;
-  original_price: number;
-  selling_price: number;
-  stock_quantity: number;
+  originalPrice: number;
+  sellingPrice: number;
+  stockQuantity: number;
   description: string;
-  image: string;
-  fileObj?: File;
+  file: File | undefined;
 }

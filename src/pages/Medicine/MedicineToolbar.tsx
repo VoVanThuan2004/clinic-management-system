@@ -23,8 +23,8 @@ export const MedicineToolbar = (props: Props) => {
   });
 
   const mappingCategories = categories.map((c) => ({
-    label: c.category_name,
-    value: c.category_id,
+    label: c.categoryName,
+    value: c.categoryId,
   }));
 
   return (

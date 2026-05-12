@@ -15,7 +15,7 @@ export const MedicinePage = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 500);
   const [pagination, setPagination] = useState({
-    current: 1,
+    current: 0,
     pageSize: 10,
   });
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -31,8 +31,9 @@ export const MedicinePage = () => {
     search: debouncedSearch,
     page: pagination.current,
     pageSize: pagination.pageSize,
-    category_id: selectedCategory,
+    category_id: selectedCategory || "all",
   });
+  const medicines = data?.data?.content || [];
 
   // Gọi hook api thêm thuốc
   const addMedicineMutate = useAddMedicine();
@@ -57,47 +58,39 @@ export const MedicinePage = () => {
       return;
     }
 
+    console.log(values);
+    
+
     // 2. Extract file
-    const fileObj = values.image?.fileList?.[0]?.originFileObj;
-    const filePath = `medicines/${Date.now()}_${fileObj.name}`;
+    const fileObj = values.image[0]?.originFileObj;
 
     addMedicineMutate.mutate(
       {
-        category_id: values.category_id,
-        medicine_name: values.medicine_name,
+        categoryId: values.categoryId,
+        medicineName: values.medicineName,
         unit: values.unit,
-        original_price: values.original_price,
-        selling_price: values.selling_price,
-        stock_quantity: values.stock_quantity,
+        originalPrice: values.originalPrice,
+        sellingPrice: values.sellingPrice,
+        stockQuantity: values.stockQuantity,
         description: values.description,
-        fileObj,
-        filePath,
+        file: fileObj,
       },
       {
-        onSuccess: () => {
-          message.success("Thêm thuốc thành công");
+        onSuccess: (data) => {
+          message.success(data.message || "Thêm thuốc thành công");
           onCloseAddModal();
-        },
-        onError: () => {
-          message.error("Lỗi khi thêm thuốc, vui lòng thử lại!");
         },
       },
     );
   };
 
-  const onDeleteMedicine = (medicineId: string, image: string) => {
+  const onDeleteMedicine = (medicineId: string) => {
     deleteMedicineMutate.mutate(
+      medicineId,
       {
-        medicineId,
-        fileUrl: image,
-      },
-      {
-        onSuccess: () => {
-          message.success("Xóa thuốc thành công!");
-        },
-        onError: () => {
-          message.error("Lỗi khi xóa thuốc, vui lòng thử lại!");
-        },
+        onSuccess: (data) => {
+          message.success(data.message || "Xóa thuốc thành công!");
+        }
       },
     );
   };
@@ -105,46 +98,35 @@ export const MedicinePage = () => {
   const onOpenUpdateModal = (values: any) => {
     setIsOpenUpdate(true);
     setMedicineUpdate(values);
-    setMedicineId(values.medicine_id);
-    console.log(values);
+    setMedicineId(values.medicineId);
   };
 
   const onUpdateMedicine = (values: any) => {
-    console.log("Values uploaded: ", values);
-
-    let fileObj: File | undefined;
-    let imageUrl = medicineUpdate?.image;
-
-    if (values.image?.fileList?.[0]?.originFileObj) {
-      // ảnh mới
-      fileObj = values.image?.fileList?.[0]?.originFileObj;
-    } else if (values.image?.[0].url) {
-      // ảnh cũ
-      imageUrl = values.image?.[0].url;
+    if (Number(values.originalPrice) > Number(values.sellingPrice)) {
+      message.error("Giá nhập không được lớn hơn giá bán!");
+      return;
     }
 
+    const fileObj = values.image
+      ? values.image[0]?.originFileObj
+      : undefined;
 
     updateMedicineMutate.mutate(
       {
-        category_id: values.category_id,
-        medicine_id: medicineId,
-        medicine_name: values.medicine_name,
-        original_price: values.original_price,
-        selling_price: values.selling_price,
-        stock_quantity: values.stock_quantity,
+        categoryId: values.categoryId,
+        medicineId: medicineId,
+        medicineName: values.medicineName,
+        originalPrice: values.originalPrice,
+        sellingPrice: values.sellingPrice,
+        stockQuantity: values.stockQuantity,
         unit: values.unit,
         description: values.description,
-        image: imageUrl as string,
-        fileObj,
+        file: fileObj,
       },
       {
-        onSuccess: () => {
-          message.success("Cập nhật thuốc thành công!");
+        onSuccess: (data) => {
+          message.success(data.message || "Cập nhật thuốc thành công!");
           onCloseUpdateModal();
-        },
-        onError: (error) => {
-          console.log(error);
-          message.error("Lỗi khi cập nhật thuốc, vui lòng thử lại!");
         },
       },
     );
@@ -173,21 +155,22 @@ export const MedicinePage = () => {
         loading={
           isLoading ||
           deleteMedicineMutate.isPending ||
-          addMedicineMutate.isPending || updateMedicineMutate.isPending
+          addMedicineMutate.isPending ||
+          updateMedicineMutate.isPending
         }
         columns={columns}
-        dataSource={data?.data || []}
+        dataSource={medicines}
         pagination={{
-          current: pagination.current,
+          current: pagination.current + 1,
           pageSize: pagination.pageSize,
-          total: data?.count || 0,
+          total: data?.data?.totalElements || 0,
 
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50"],
 
           onChange: (page, pageSize) => {
             setPagination({
-              current: page,
+              current: page - 1,
               pageSize: pageSize,
             });
           },

@@ -56,8 +56,8 @@ export const MedicineModal = (props: Props) => {
   });
 
   const mappingCategories = categories.map((c) => ({
-    label: c.category_name,
-    value: c.category_id,
+    label: c.categoryName,
+    value: c.categoryId,
   }));
 
   const onCloseModal = () => {
@@ -67,7 +67,7 @@ export const MedicineModal = (props: Props) => {
 
   const medicineFields: FormField[] = [
     {
-      name: "category_id",
+      name: "categoryId",
       label: "Danh mục",
       type: "select",
       placeholder: "Chọn danh mục",
@@ -81,7 +81,7 @@ export const MedicineModal = (props: Props) => {
     },
 
     {
-      name: "medicine_name",
+      name: "medicineName",
       label: "Tên thuốc",
       type: "input",
       placeholder: "Nhập tên thuốc",
@@ -97,7 +97,7 @@ export const MedicineModal = (props: Props) => {
     },
 
     {
-      name: "original_price",
+      name: "originalPrice",
       label: "Giá nhập",
       type: "number",
       placeholder: "Nhập giá nhập",
@@ -118,7 +118,7 @@ export const MedicineModal = (props: Props) => {
     },
 
     {
-      name: "selling_price",
+      name: "sellingPrice",
       label: "Giá bán",
       type: "number",
       placeholder: "Nhập giá bán",
@@ -139,7 +139,7 @@ export const MedicineModal = (props: Props) => {
     },
 
     {
-      name: "stock_quantity",
+      name: "stockQuantity",
       label: "Tồn kho",
       type: "number",
       placeholder: "Nhập số lượng",

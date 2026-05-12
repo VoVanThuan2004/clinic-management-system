@@ -13,11 +13,6 @@ export const SideBar = () => {
 
   const menu = sidebarConfig[user?.roleName as string] || [];
 
-  // const handleLogout = () => {
-  //   navigate("/login");
-  //   clearSession();
-  // };
-
   const handleLogoutV2 = async () => {
     try {
       const res = await logoutApi();

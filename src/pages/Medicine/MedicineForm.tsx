@@ -13,16 +13,24 @@ export const MedicineForm = (props: Props) => {
 
   return (
     <Form form={form} layout="vertical" onFinish={onSubmit}>
-      {fields.map((field) => (
-        <Form.Item
-          key={field.name}
-          name={field.name}
-          label={field.label}
-          rules={field.rules}
-        >
-          {renderField(field)}
-        </Form.Item>
-      ))}
+      {fields.map((field) => {
+        const isUpload = field.type === "upload";
+
+        return (
+          <Form.Item
+            key={field.name}
+            name={field.name}
+            label={field.label}
+            rules={field.rules}
+            valuePropName={isUpload ? "fileList" : undefined}
+            getValueFromEvent={
+              isUpload ? (e) => e?.fileList : undefined
+            }
+          >
+            {renderField(field)}
+          </Form.Item>
+        );
+      })}
     </Form>
   );
 };

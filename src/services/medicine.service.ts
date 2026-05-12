@@ -1,5 +1,4 @@
 import { axiosClient } from "../api/axios-client";
-import { supabase } from "../lib/supabase";
 import type { ApiResponse, PageResponse } from "../types/api.response";
 import type {
   AddMedicineParams,
@@ -29,128 +28,100 @@ export const getMedicinesByCategory = async (props: Props) => {
   if (search) {
     queryParams.search = search;
   }
-  
+
   const res = await axiosClient.get<ApiResponse<PageResponse<Medicine>>>(
     "/v1/medicines",
     {
-      params: queryParams
-    }
-  )
+      params: queryParams,
+    },
+  );
   return res.data;
 };
 
 // Api thêm thuốc
 export const addMedicine = async (medicine: AddMedicineParams) => {
   const {
-    category_id,
-    medicine_name,
-    original_price,
-    selling_price,
-    stock_quantity,
-    description,
+    categoryId,
+    medicineName,
     unit,
-    fileObj,
-    filePath,
+    originalPrice,
+    sellingPrice,
+    stockQuantity,
+    description,
+    file,
   } = medicine;
 
-  const urlData = await uploadFile(fileObj, filePath);
+  const formData = new FormData();
+  formData.append(
+    "data",
+    new Blob([JSON.stringify({
+      categoryId: categoryId,
+      medicineName: medicineName,
+      originalPrice: originalPrice,
+      sellingPrice: sellingPrice,
+      stockQuantity: stockQuantity,
+      unit: unit,
+      description: description,
+    })], {
+      type: "application/json",
+    })
+  );
+  formData.append("file", file);
 
-  // Tạo medicine
-  const { error: medicineError } = await supabase.from("medicines").insert({
-    category_id,
-    medicine_name,
-    unit,
-    original_price,
-    selling_price,
-    stock_quantity,
-    image: urlData,
-    description,
+  const res = await axiosClient.post<ApiResponse>("/v1/medicines", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 
-  if (medicineError) {
-    throw medicineError;
-  }
+  return res.data;
 };
 
-export const uploadFile = async (fileObj: File, filePath: string) => {
-  // Upload Storage
-  const { error: uploadError } = await supabase.storage
-    .from("images")
-    .upload(filePath, fileObj);
-  if (uploadError) throw uploadError;
-
-  // Get URL & Insert DB
-  const { data: urlData } = supabase.storage
-    .from("images")
-    .getPublicUrl(filePath);
-  return urlData.publicUrl;
-};
-
-export const deleteFile = async (fileUrl: string) => {
-  // 1. Tách lấy Path từ URL
-  const parts = fileUrl.split("/images/");
-  let filePath = parts[parts.length - 1];
-
-  // 2. GIẢI MÃ CHUỖI (Cực kỳ quan trọng)
-  filePath = decodeURIComponent(filePath);
-
-  // 3. Gọi lệnh xóa
-  const { data, error } = await supabase.storage
-    .from("images")
-    .remove([filePath]);
-
-  // Nếu data rỗng, nghĩa là filePath vẫn chưa khớp 100% với trên Dashboard
-  if (error || !data || data.length === 0) {
-    throw error;
-  }
-};
-
-export const deleteMedicine = async ({
-  medicineId,
-  fileUrl,
-}: {
-  medicineId: string;
-  fileUrl: string;
-}) => {
-  await deleteFile(fileUrl);
-
-  const { error } = await supabase
-    .from("medicines")
-    .delete()
-    .eq("medicine_id", medicineId);
-  if (error) throw error;
-
-  return true;
+export const deleteMedicine = async (medicineId: string) => {
+  const res = await axiosClient.delete<ApiResponse>(`/v1/medicines/${medicineId}`);
+  return res.data;
 };
 
 export const updateMedicine = async (medicine: UpdateMedicineParams) => {
-  let newImage = medicine.image;
-  if (medicine.fileObj) {
-    if (medicine.image) {
-      console.log("medicineOldImage: ", medicine.image);
-      await deleteFile(medicine.image);
-    }
-    const filePath = `medicines/${Date.now()}_${medicine.fileObj.name}`;
-    newImage = await uploadFile(medicine.fileObj, filePath);
-  }
+  const {
+    medicineId,
+    categoryId,
+    medicineName,
+    unit,
+    originalPrice,
+    sellingPrice,
+    stockQuantity,
+    description,
+    file,
+  } = medicine;
 
-  const { error: updateMedicineError } = await supabase
-    .from("medicines")
-    .update({
-      category_id: medicine.category_id,
-      medicine_name: medicine.medicine_name,
-      original_price: medicine.original_price,
-      selling_price: medicine.selling_price,
-      stock_quantity: medicine.stock_quantity,
-      unit: medicine.unit,
-      description: medicine.description,
-      image: newImage,
+  const formData = new FormData();
+
+  formData.append(
+    "data",
+    new Blob([JSON.stringify({
+      categoryId: categoryId,
+      medicineName: medicineName,
+      originalPrice: originalPrice,
+      sellingPrice: sellingPrice,
+      stockQuantity: stockQuantity,
+      unit: unit,
+      description: description,
+    })], {
+      type: "application/json",
     })
-    .eq("medicine_id", medicine.medicine_id);
+  );
 
-  if (updateMedicineError) {
-    throw updateMedicineError;
+  // CHỈ append nếu có upload file mới
+  if (file instanceof File) {
+    formData.append("file", file);
   }
 
-  return true;
+  const res = await axiosClient.put<ApiResponse>(`/v1/medicines/${medicineId}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data;
 };

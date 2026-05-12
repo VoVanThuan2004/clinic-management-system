@@ -3,7 +3,7 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { SquarePen, Trash2Icon } from "lucide-react";
 
 type Props = {
-  onDelete: (medicineId: string, fileUrl: string) => void;
+  onDelete: (medicineId: string) => void;
   onEdit: (values: any) => void;
 }
 
@@ -24,8 +24,8 @@ export const getMedicineColumns = ({ onDelete, onEdit }: Props) => [
 
   {
     title: "Tên thuốc",
-    dataIndex: "medicine_name",
-    key: "medicine_name",
+    dataIndex: "medicineName",
+    key: "medicineName",
     render: (text: string) => (
       <span className="font-semibold text-gray-800">{text}</span>
     ),
@@ -41,8 +41,8 @@ export const getMedicineColumns = ({ onDelete, onEdit }: Props) => [
 
   {
     title: "Giá nhập",
-    dataIndex: "original_price",
-    key: "original_price",
+    dataIndex: "originalPrice",
+    key: "originalPrice",
     render: (value: number) => (
       <span className="font-medium text-gray-700">{formatCurrency(value)}</span>
     ),
@@ -50,8 +50,8 @@ export const getMedicineColumns = ({ onDelete, onEdit }: Props) => [
 
   {
     title: "Giá bán",
-    dataIndex: "selling_price",
-    key: "selling_price",
+    dataIndex: "sellingPrice",
+    key: "sellingPrice",
     render: (value: number) => (
       <span className="font-semibold text-green-600">
         {formatCurrency(value)}
@@ -61,8 +61,8 @@ export const getMedicineColumns = ({ onDelete, onEdit }: Props) => [
 
   {
     title: "Tồn kho",
-    dataIndex: "stock_quantity",
-    key: "stock_quantity",
+    dataIndex: "stockQuantity",
+    key: "stockQuantity",
     width: 100,
     render: (value: number) => (
       <span
@@ -101,7 +101,7 @@ export const getMedicineColumns = ({ onDelete, onEdit }: Props) => [
         <Popconfirm
           title="Xóa danh mục"
           description="Bạn có chắc chắn muốn xóa thuốc này?"
-          onConfirm={() => onDelete(record.medicine_id, record.image)}
+          onConfirm={() => onDelete(record.medicineId)}
           okText="Xóa"
           cancelText="Hủy"
         >

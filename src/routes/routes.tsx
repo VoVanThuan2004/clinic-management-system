@@ -131,7 +131,7 @@ const routes = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to={"users/patients"} replace />,
+            element: <Navigate to={"dashboard"} replace />,
           },
           {
             path: "users",
