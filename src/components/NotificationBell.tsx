@@ -6,6 +6,7 @@ import { useMarkReadNotification } from "../hooks/notification/useMarkReadNotifi
 import { useDeleteNotification } from "../hooks/notification/useDeleteNotification";
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useAuthStore } from "../stores/useAuthStore";
+import { useMarkReadAllNotifications } from "../hooks/notification/useMarkReadAllNotifications";
 
 type Props = {
   totalNotifications: number;
@@ -19,11 +20,15 @@ export const NotificationBell = (props: Props) => {
   useWebSocket(userId);
 
   // Gọi hook api lấy danh sách thông báo
-  const { data } = useNotifications();
+  const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
+    useNotifications();
   const notifications = data?.pages.flatMap((page) => page.data?.content) || [];
 
   // Gọi hook api đánh dấu đã đọc 1 thông báo
   const onMarkAsReadMutation = useMarkReadNotification();
+
+  // Gọi hook api đánh dấu đã đọc tất cả thông báo
+  const onMarkAsReadAllMutation = useMarkReadAllNotifications();
 
   // Gọi hook api xóa 1 thông báo
   const onDeleteNotificationMutation = useDeleteNotification();
@@ -33,6 +38,11 @@ export const NotificationBell = (props: Props) => {
     if (!notificationId) return;
 
     onMarkAsReadMutation.mutate(notificationId);
+  };
+
+  // Đánh dấu tất cả thông báo đã đọc
+  const onMarkAsReadAll = () => {
+    onMarkAsReadAllMutation.mutate();
   }
 
   const onDeleteNotification = (notificationId: string) => {
@@ -47,7 +57,10 @@ export const NotificationBell = (props: Props) => {
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-800 text-[15px]">Thông báo</h3>
 
-        <button className="text-blue-600 text-sm hover:underline">
+        <button className="text-blue-600 text-sm hover:underline cursor-pointer"
+          onClick={onMarkAsReadAll}
+          disabled={notifications.length === 0 || onMarkAsReadAllMutation.isPending}
+        >
           Đánh dấu đã đọc tất cả
         </button>
       </div>
@@ -58,14 +71,14 @@ export const NotificationBell = (props: Props) => {
           <div
             key={notification?.notificationId}
             className={`
-        group relative rounded-xl border p-4 transition-all duration-200
-        hover:shadow-md cursor-pointer
-        ${
-          notification?.read
-            ? "bg-white border-gray-200"
-            : "bg-blue-50/70 border-blue-200"
-        }
-      `}
+            group relative rounded-xl border p-4 transition-all duration-200
+            hover:shadow-md cursor-pointer
+            ${
+              notification?.read
+                ? "bg-white border-gray-200"
+                : "bg-blue-50/70 border-blue-200"
+            }
+          `}
           >
             {/* Header */}
             <div className="flex items-start justify-between gap-3">
@@ -85,7 +98,9 @@ export const NotificationBell = (props: Props) => {
                   </p>
 
                   <p className="text-[11px] text-gray-400 mt-3">
-                    {dayjs(notification?.createdAt).format("HH:mm • DD/MM/YYYY")}
+                    {dayjs(notification?.createdAt).format(
+                      "HH:mm • DD/MM/YYYY",
+                    )}
                   </p>
                 </div>
               </div>
@@ -93,18 +108,18 @@ export const NotificationBell = (props: Props) => {
               {/* Actions */}
               <div
                 className="
-            opacity-0 group-hover:opacity-100
-            transition flex items-center gap-2
-          "
+                opacity-0 group-hover:opacity-100
+                transition flex items-center gap-2
+              "
               >
                 {/* Mark as read */}
                 {!notification?.read && (
                   <button
                     className="
-                p-2 rounded-lg
-                hover:bg-blue-100
-                transition
-              "
+                    p-2 rounded-lg
+                    hover:bg-blue-100
+                    transition
+                  "
                     onClick={(e) => {
                       e.stopPropagation();
 
@@ -118,10 +133,10 @@ export const NotificationBell = (props: Props) => {
                 {/* Delete */}
                 <button
                   className="
-              p-2 rounded-lg
-              hover:bg-red-100
-              transition
-            "
+                  p-2 rounded-lg
+                  hover:bg-red-100
+                  transition
+                "
                   onClick={(e) => {
                     e.stopPropagation();
 
@@ -134,14 +149,30 @@ export const NotificationBell = (props: Props) => {
             </div>
           </div>
         ))}
+
+        {/* Load More */}
+        {hasNextPage && (
+          <button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className=" mt-3
+            text-sm text-blue-600
+            hover:text-blue-700 hover:underline
+            transition
+            disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed
+          "
+          >
+            {isFetchingNextPage ? "Đang tải..." : "Xem tiếp"}
+          </button>
+        )}
       </div>
 
-      {/* Footer */}
-      <div className="pt-4 mt-4 border-t border-gray-100 text-center">
-        <button className="text-sm text-blue-600 hover:underline">
-          Xem tất cả
-        </button>
-      </div>
+      {/* Empty */}
+      {!isLoading && notifications.length === 0 && (
+        <div className="py-8 text-center text-sm text-gray-400">
+          Không có thông báo
+        </div>
+      )}
     </div>
   );
 

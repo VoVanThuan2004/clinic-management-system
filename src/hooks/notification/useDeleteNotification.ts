@@ -8,9 +8,11 @@ export const useDeleteNotification = () => {
 
     return useMutation({
         mutationFn: (notificationId: string) => deleteNotificationApi(notificationId),
-        onSuccess: () => {
+        onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
-            decreaseTotalNotifications();
+            if (data.data === false) {
+                decreaseTotalNotifications();
+            }
         }
     })
 }

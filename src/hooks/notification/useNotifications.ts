@@ -1,7 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getAllNotificationsApi } from "../../services/notification.service";
 
-
 export const useNotifications = () => {
   return useInfiniteQuery({
     queryKey: ["notifications"],
@@ -18,7 +17,7 @@ export const useNotifications = () => {
         return undefined;
       }
 
-      return lastPage.data?.page as number + 1;
+      return (lastPage.data?.number as number) + 1;
     },
-  })
+  });
 };

@@ -30,6 +30,12 @@ export const markAsReadNotificationApi = async (notificationId: string) => {
   return res.data;
 };
 
+// Đánh dấu đã đọc tất cả thông báo
+export const markAsReadAllNotificationsApi = async () => {
+  const res = await axiosClient.put<ApiResponse>("/v1/notifications/read-all");
+  return res.data;
+};
+
 // Xóa thông báo
 export const deleteNotificationApi = async (notificationId: string) => {
   const res = await axiosClient.delete<ApiResponse>(
