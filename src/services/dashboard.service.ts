@@ -1,19 +1,11 @@
+import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
-import type { GroupBy, RevenueParams } from "../types/dashboard.type";
+import type { ApiResponse } from "../types/api.response";
+import type { GroupBy, RevenueParams, TodayStatistics } from "../types/dashboard.type";
 
 export const getTodayStatistics = async () => {
-  const { data, error } = await supabase.rpc("get_daily_stats");
-
-  if (error) throw error;
-
-  if (data && data.length > 0) {
-    return {
-      totalRevenue: data[0].total_revenue,
-      totalPatients: data[0].total_patients,
-    };
-  }
-
-  return { totalRevenue: 0, totalPatients: 0 };
+  const res = await axiosClient.get<ApiResponse<TodayStatistics>>("/v1/dashboard/today");
+  return res.data;
 };
 
 export const revenueStatistics = async (params: RevenueParams) => {

@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { getTodayStatistics } from "../../services/dashboard.service";
+import type { TodayStatistics } from "../../types/dashboard.type";
 
 export const useTodayStatistic = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [stats, setStats] = useState({ totalRevenue: 0, totalPatients: 0 });
+  const [stats, setStats] = useState<TodayStatistics | undefined>();
 
   useEffect(() => {
     const fetchTodayStatistics = async () => {
       setIsLoading(true);
       try {
-        const data = await getTodayStatistics();
-        setStats(data);
+        const res = await getTodayStatistics();
+        setStats(res.data);
       } catch (error) {
         console.log(error);
       } finally {

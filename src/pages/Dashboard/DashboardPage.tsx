@@ -57,7 +57,7 @@ export const DashboardPage = () => {
             </div>
           ) : (
             <p className="text-2xl font-semibold text-gray-800">
-              {formatCurrency(stats.totalRevenue)}
+              {formatCurrency(stats?.totalRevenue || 0)}
             </p>
           )}
         </div>
@@ -78,7 +78,7 @@ export const DashboardPage = () => {
             </div>
           ) : (
             <p className="text-2xl font-semibold text-gray-800">
-              {stats.totalPatients}
+              {stats?.totalPatients || 0}
             </p>
           )}
         </div>

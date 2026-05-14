@@ -6,3 +6,8 @@ export type RevenueParams = {
     endDate: string;
     groupBy: GroupBy;
 }
+
+export type TodayStatistics = {
+    totalPatients: number;
+    totalRevenue: number;
+}
