@@ -20,7 +20,7 @@ export default function TopMedicines({
     return (
       <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mt-5">
         <h2 className="text-lg font-bold text-slate-800 mb-6">
-          Top 5 loại thuốc bán chạy
+          Top loại thuốc bán chạy
         </h2>
 
         <div className="space-y-4">
@@ -39,7 +39,7 @@ export default function TopMedicines({
     <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mt-5">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-slate-800">Top 5 loại thuốc bán chạy</h2>
+          <h2 className="text-lg font-bold text-slate-800">Top loại thuốc bán chạy</h2>
           <p className="mt-1 text-sm text-slate-500">
             Thống kê thuốc được sử dụng nhiều nhất theo đơn thuốc gần đây.
           </p>

@@ -1,7 +1,7 @@
 import { axiosClient } from "../api/axios-client";
 import { supabase } from "../lib/supabase";
 import type { ApiResponse } from "../types/api.response";
-import type { GroupBy, RevenueParams, TodayStatistics } from "../types/dashboard.type";
+import type { GroupBy, RevenueAndProfitStatsDTO, RevenueParams, TodayStatistics, TopMedicineDTO } from "../types/dashboard.type";
 
 export const getTodayStatistics = async () => {
   const res = await axiosClient.get<ApiResponse<TodayStatistics>>("/v1/dashboard/today");
@@ -15,7 +15,8 @@ export const revenueStatistics = async (params: RevenueParams) => {
         week: "week",
         month: "month",
         quarter: "quarter",
-        year: "year"
+        year: "year",
+        day: "day"
     };
 
     const trunc = groupMap[groupBy];
@@ -46,11 +47,37 @@ export const profitStatistics = async (params: RevenueParams) => {
 };
 
 export const getTopMedicines = async (startDate: string, endDate: string) => {
-  const { data, error } = await supabase.rpc("get_top_medicines", {
-    start_date: startDate,
-    end_date: endDate,
-  });
+  const queryParams: Record<string, any> = {
+    start: startDate,
+    end: endDate,
+    limit: 5
+  };
+  const res = await axiosClient.get<ApiResponse<TopMedicineDTO[]>>(
+    "/v1/dashboard/top-medicine",
+    {
+      params: queryParams
+    }
+  );
 
-  if (error) throw error;
-  return data;
+  return res.data;
+}
+
+
+// Version 2
+export const getRevenueAndProfitStatistics = async (params: RevenueParams) => {
+  const {startDate, endDate, groupBy} = params;
+  const queryParams: Record<string, any> = {
+    start: startDate,
+    end: endDate,
+    groupBy
+  };
+
+  const res = await axiosClient.get<ApiResponse<RevenueAndProfitStatsDTO[]>>(
+    "/v1/dashboard/statistic",
+    {
+      params: queryParams
+    }
+  );
+
+  return res.data;
 }

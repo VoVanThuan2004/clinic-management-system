@@ -2,7 +2,7 @@ import { Banknote, Users } from "lucide-react";
 import { useTodayStatistic } from "../../hooks/dashboard/useTodayStatistic";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { DatePicker, Select } from "antd";
-import { useRevenueStatistics } from "../../hooks/dashboard/useRevenueStatistics";
+import { useRevenueAndProfitStat } from "../../hooks/dashboard/useRevenueAndProfitStat";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { RevenueChart } from "./RevenueChart";
@@ -26,7 +26,7 @@ export const DashboardPage = () => {
   const { isLoading, stats } = useTodayStatistic();
 
   // Gọi hook api trả về thống kế doanh thu
-  const { data, isLoading: isLoadingStats } = useRevenueStatistics({
+  const { data, isLoading: isLoadingStats } = useRevenueAndProfitStat({
     startDate,
     endDate,
     groupBy,
@@ -106,6 +106,7 @@ export const DashboardPage = () => {
             { value: "quarter", label: "Theo quý" },
             { value: "month", label: "Theo tháng" },
             { value: "week", label: "Theo tuần" },
+            { value: "day", label: "Theo ngày"}
           ]}
           disabled={isAnyLoading}
         />

@@ -54,17 +54,14 @@ axiosClient.interceptors.response.use(
       // Xử lý các lỗi không cần refresh token
       switch (status) {
         case 400:
-          // console.error("Bad Request:", data?.message || "Invalid request");
           message.error(data?.message || "Invalid request");
           break;
         case 403:
-          // console.error("Forbidden:", data?.message || "Access denied");
           message.error("You are not accessed into this resource");
           tokenStorage.clear();
           window.location.href = "/";
           break;
         case 404:
-          // console.error("Not Found:", data?.message || "Resource not found");
           message.error(data?.message || "Resource not found");
           break;
         case 409:
@@ -75,7 +72,6 @@ axiosClient.interceptors.response.use(
           console.error("Validation Error:", data?.message || "Invalid data");
           break;
         case 429:
-          console.error("Too Many Requests:", "Please try again later");
           message.error("Too many requests. Please try again later");
           break;
         case 500:
@@ -119,10 +115,10 @@ axiosClient.interceptors.response.use(
       try {
         // Gọi API refresh token
         const res = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/v1/refresh-token`,
+          `${import.meta.env.VITE_API_BASE_URL}/v1/auth/refresh-token`,
           {},
           {
-            withCredentials: true, // Gửi kèm cookie
+            withCredentials: true,
             headers: {
               "Content-Type": "application/json",
             },
@@ -173,13 +169,11 @@ axiosClient.interceptors.response.use(
     // Xử lý lỗi network timeout
     if (error.code === "ECONNABORTED" || error.message === "timeout") {
       console.error("Request timeout:", originalRequest.url);
-      // Có thể hiển thị notification
     }
 
     // Xử lý lỗi network (mất kết nối)
     if (error.message === "Network Error") {
       console.error("Network error: Cannot connect to server");
-      // Có thể hiển thị notification hoặc retry logic
     }
 
     return Promise.reject(error);

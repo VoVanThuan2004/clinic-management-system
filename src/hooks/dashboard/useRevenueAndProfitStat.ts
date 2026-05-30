@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { profitStatistics, revenueStatistics } from "../../services/dashboard.service";
-import type { GroupBy } from "../../types/dashboard.type";
+import { getRevenueAndProfitStatistics } from "../../services/dashboard.service";
+import type { GroupBy, RevenueAndProfitStatsDTO } from "../../types/dashboard.type";
 import { formatLabel } from "../../utils/formatLabel";
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
   groupBy: GroupBy;
 };
 
-export const useRevenueStatistics = (props: Props) => {
+export const useRevenueAndProfitStat = (props: Props) => {
   const { startDate, endDate, groupBy } = props;
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<any[]>([]);
@@ -20,26 +20,16 @@ export const useRevenueStatistics = (props: Props) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [revenueRes, profitRes] = await Promise.all([
-          revenueStatistics({ startDate, endDate, groupBy }),
-          profitStatistics({ startDate, endDate, groupBy }),
-        ]);
+        const res = await getRevenueAndProfitStatistics(props);
 
-        // Convert về map để lookup nhanh
-        const profitMap = new Map(
-          profitRes.map((item: any) => [
-            formatLabel(item.period, groupBy),
-            Number(item.profit),
-          ])
-        );
-
-        const formatted = revenueRes.map((item: any) => {
+        const data = res.data || [];
+        const formatted = data.map((item: RevenueAndProfitStatsDTO) => {
           const label = formatLabel(item.label, groupBy);
 
           return {
             label,
             revenue: Number(item.revenue),
-            profit: profitMap.get(label) || 0,
+            profit: Number(item.profit)
           };
         });
 

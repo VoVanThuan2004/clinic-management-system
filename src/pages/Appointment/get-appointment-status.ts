@@ -11,6 +11,9 @@ export const getAppointmentStatus = (status: string) => {
   if (status === AppointmentStatus.COMPLETED) {
     return "Đã hoàn thành";
   }
+  if (status === AppointmentStatus.EXAMINING) {
+    return "Đang khám bệnh";
+  }
   if (status === AppointmentStatus.CANCELLED) {
     return "Đã hủy";
   }
