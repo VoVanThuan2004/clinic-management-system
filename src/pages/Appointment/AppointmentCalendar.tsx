@@ -43,6 +43,9 @@ export const AppointmentCalendar = ({
   const handlePrimaryAction = async (event: AppointmentResponse) => {
     const {  status, appointmentId } = event;
 
+    console.log("status: ", status);
+    console.log("appointmentId: ", appointmentId);
+
     // 1. COMPLETED → chỉ xem hồ sơ
     if (status === AppointmentStatus.COMPLETED) {
       const res = await checkMedicalRecord(appointmentId);
@@ -66,12 +69,12 @@ export const AppointmentCalendar = ({
     // 3. CHECKED_IN → bắt đầu khám (tạo hồ sơ)
     if (status === AppointmentStatus.CHECKED_IN) {
       // check đã có record chưa (tránh tạo trùng)
-      const res1 = await checkMedicalRecord(appointmentId);
+      // const res1 = await checkMedicalRecord(appointmentId);
 
-      if (res1.status === "success") {
-        navigate(`/doctor/medical-records/${res1.data}`);
-        return;
-      }
+      // if (res1.status === "success") {
+      //   navigate(`/doctor/medical-records/${res1.data}`);
+      //   return;
+      // }
 
       // tạo mới hồ sơ bệnh lý
       const res2 = await createMedicalRecordApi(appointmentId);
