@@ -12,12 +12,15 @@ import { pdf } from "@react-pdf/renderer";
 import { MedicalPDF } from "./MedicalPDF";
 import { saveAs } from "file-saver";
 import { MedicalRecordTable } from "./MedicalRecordTable";
+import { PaymentBankTransferModal } from "./PaymentBankTransferModal";
 
 export const EmployeePage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [recordId, setRecordId] = useState("");
   const [patientName, setPatientName] = useState("");
   const [doctorName, setDoctorName] = useState("");
+  const [bankTransferModalOpen, setBankTransferModalOpen] = useState(false);
+  const [totalPricePayment, setTotalPricePayment] = useState<number>();
 
   const [pagination, setPagination] = useState({
     current: 0,
@@ -116,6 +119,11 @@ export const EmployeePage = () => {
               message: "Thanh toán thành công",
               description: `Đã thanh toán ${totalAmount} VNĐ bằng tiền mặt`,
             });
+          }
+
+          if (paymentMethod === "BANKING") {
+            setBankTransferModalOpen(true);
+            setTotalPricePayment(totalAmount);
           }
         },
       },
@@ -237,6 +245,13 @@ export const EmployeePage = () => {
         doctorName={doctorName}
         onPayMedicalRecord={onPayMedicalRecord}
         isLoading={payMedicalRecordMutation.isPending}
+      />
+
+      <PaymentBankTransferModal
+        bankTransferModalOpen={bankTransferModalOpen}
+        setBankTransferModalOpen={setBankTransferModalOpen}
+        recordId={recordId}
+        totalPrice={totalPricePayment as number}
       />
     </div>
   );
