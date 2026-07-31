@@ -5,6 +5,9 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    port: 3000,
+  },
   optimizeDeps: {
     include: ["sockjs-client", "@stomp/stompjs"],
   },
