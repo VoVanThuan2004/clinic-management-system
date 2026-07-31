@@ -1,8 +1,9 @@
 import { DatePicker, Input, message, Segmented, Select } from "antd";
-import type { Dayjs } from "dayjs";
+import dayjs, { type Dayjs } from "dayjs";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
+import { useLocation } from "react-router-dom";
 import { SearchOutlined } from "@ant-design/icons";
 import { AppointmentTable } from "./AppointmentTable";
 import { useDoctorOption } from "../../hooks/useDoctorOption";
@@ -14,12 +15,24 @@ import { exportAppointmentsExcel } from "./export-appointments-excel";
 import type { AppointmentTableResponse } from "../../types/appointment.type";
 
 export const EmployeePage = () => {
+  const location = useLocation();
+  const appointmentTime = (location.state as { appointmentTime?: string } | null)?.appointmentTime;
+
   // State quản lý tìm kiếm bệnh nhân lịch hẹn
   const [searchValue, setSearchValue] = useState("");
   const [debouncedSearchText] = useDebounce(searchValue, 500); // sử dụng debounce để delay khi nhập text tìm kiếm
 
   // State quản lý chọn ngày khám
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(() =>
+    appointmentTime ? dayjs(appointmentTime) : null,
+  );
+
+  // Đồng bộ ngày đã chọn với appointmentTime từ thông báo
+  const [prevAppointmentTime, setPrevAppointmentTime] = useState(appointmentTime);
+  if (appointmentTime && appointmentTime !== prevAppointmentTime) {
+    setPrevAppointmentTime(appointmentTime);
+    setSelectedDate(dayjs(appointmentTime));
+  }
 
   // State quản lý trạng thái đóng mở modal tạo lịch hẹn
   const [isOpen, setIsOpen] = useState(false);
@@ -177,7 +190,12 @@ export const EmployeePage = () => {
       )}
 
       {/* Hiển thị calendar */}
-      {viewMode === "calendar" && <AppointmentCalendar doctor_id={doctorId} />}
+      {viewMode === "calendar" && (
+        <AppointmentCalendar
+          doctor_id={doctorId}
+          initialDate={appointmentTime ? dayjs(appointmentTime) : undefined}
+        />
+      )}
 
       {/* Modal tạo lịch khám */}
       <CreateModal isOpen={isOpen} onClose={onClose} />

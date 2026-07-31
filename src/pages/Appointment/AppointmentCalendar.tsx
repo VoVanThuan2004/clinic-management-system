@@ -20,11 +20,25 @@ import { useNavigate } from "react-router-dom";
 export const AppointmentCalendar = ({
   doctor_id,
   role,
+  initialDate,
 }: {
   doctor_id?: string;
   role?: string;
+  initialDate?: Dayjs;
 }) => {
-  const [currentMonth, setCurrentMonth] = useState<Dayjs>(dayjs());
+  const [currentMonth, setCurrentMonth] = useState<Dayjs>(() =>
+    initialDate ?? dayjs(),
+  );
+
+  console.log("Date: ", initialDate);
+  
+
+  // Đồng bộ tháng hiển thị với appointmentTime từ thông báo
+  const [prevInitialDate, setPrevInitialDate] = useState(initialDate);
+  if (initialDate && initialDate !== prevInitialDate) {
+    setPrevInitialDate(initialDate);
+    setCurrentMonth(initialDate);
+  }
 
   const startOfMonth = currentMonth.startOf("month").toISOString();
   const endOfMonth = currentMonth.endOf("month").toISOString();
@@ -42,9 +56,6 @@ export const AppointmentCalendar = ({
 
   const handlePrimaryAction = async (event: AppointmentResponse) => {
     const {  status, appointmentId } = event;
-
-    console.log("status: ", status);
-    console.log("appointmentId: ", appointmentId);
 
     // 1. COMPLETED → chỉ xem hồ sơ
     if (status === AppointmentStatus.COMPLETED) {

@@ -7,6 +7,8 @@ import { useDeleteNotification } from "../hooks/notification/useDeleteNotificati
 import { useWebSocket } from "../hooks/useWebSocket";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useMarkReadAllNotifications } from "../hooks/notification/useMarkReadAllNotifications";
+import { useNavigate } from "react-router-dom";
+import type { NotificationResponse } from "../types/notification.type";
 
 type Props = {
   totalNotifications: number;
@@ -16,6 +18,8 @@ export const NotificationBell = (props: Props) => {
   const { totalNotifications } = props;
   const userId = useAuthStore((state) => state.user?.userId);
 
+  const navigate = useNavigate();
+
   // Gọi socket
   useWebSocket(userId);
 
@@ -23,6 +27,8 @@ export const NotificationBell = (props: Props) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
     useNotifications();
   const notifications = data?.pages.flatMap((page) => page.data?.content) || [];
+
+  console.table(notifications);
 
   // Gọi hook api đánh dấu đã đọc 1 thông báo
   const onMarkAsReadMutation = useMarkReadNotification();
@@ -49,6 +55,14 @@ export const NotificationBell = (props: Props) => {
     if (!notificationId) return;
 
     onDeleteNotificationMutation.mutate(notificationId);
+  };
+
+  const handleClickNotification = (notification?: NotificationResponse) => {
+    if (notification?.type?.toUpperCase().includes("APPOINTMENT")) {
+      navigate("/doctor/appointments", {
+        state: { appointmentTime: notification?.appointmentTime },
+      });
+    }
   };
 
   const notificationContent = (
@@ -79,6 +93,7 @@ export const NotificationBell = (props: Props) => {
                 : "bg-blue-50/70 border-blue-200"
             }
           `}
+          onClick={() => handleClickNotification(notification)}
           >
             {/* Header */}
             <div className="flex items-start justify-between gap-3">
