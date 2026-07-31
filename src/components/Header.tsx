@@ -72,7 +72,7 @@ export const Header = (props: Props) => {
       const res = await logoutApi();
 
       if (res.status === "success") {
-        navigate("/login");
+        navigate("/");
         clearSession();
       }
     } catch (error) {
